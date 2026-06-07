@@ -106,8 +106,14 @@ impl Camera {
         let mut record = HitRecord::default();
         
         if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
-            let direction = record.normal + Vec3::random_unit_vector();
-            return self.ray_color(&Ray::new(record.point, direction), depth - 1, world) * 0.5 // <- reflectance
+            let mut scattered = Ray::default();
+            let mut attenuation = Color::default();
+            let mat = record.material.clone().unwrap();
+
+            if mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered) { 
+                return self.ray_color(&scattered, depth - 1, world) * attenuation;
+            }
+            return Color::new(0.0, 0.0, 0.0);
         }
 
         let unit_direction = unit_vector(&ray.dir);

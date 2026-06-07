@@ -43,6 +43,10 @@ impl Vec3 {
         }
     }
     
+    pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+        *v - *n * dot(v, n) * 2.0
+    }
+    
     pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
     }
@@ -51,6 +55,11 @@ impl Vec3 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+    
     pub fn as_color(&self) -> Color {
         Color { r: self.x, g: self.y, b: self.z }
     }
