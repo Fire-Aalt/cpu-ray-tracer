@@ -1,6 +1,9 @@
 mod vec3;
 mod color;
 mod ray;
+mod hittable;
+mod sphere;
+mod hittable_list;
 
 use std::fs::File;
 use std::io::Write;
@@ -8,18 +11,25 @@ use crate::color::Color;
 use crate::ray::Ray;
 use crate::vec3::{dot, unit_vector, Vec3};
 
-fn hit_sphere(center: &Vec3, radius: f32, ray: &Ray) -> bool {
+fn hit_sphere(center: &Vec3, radius: f32, ray: &Ray) -> f32 {
     let oc = *center - ray.origin;
-    let a = dot(&ray.dir, &ray.dir);
-    let b = -2.0 * dot(&ray.dir, &oc);
-    let c = dot(&oc, &oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    discriminant >= 0.0
+    let a = ray.dir.length_squared();
+    let h = dot(&ray.dir, &oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
+    
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (h - discriminant.sqrt()) / a
+    }
 }
 
 fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Color::new(1.0, 0.0, 0.0);
+    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
+    if t > 0.0 {
+        let N = unit_vector(&(r.at(t) - Vec3::new(0.0, 0.0, -1.0)));
+        return Color::new(N.x + 1.0, N.y + 1.0, N.z + 1.0) * 0.5;
     }
     
     let unit_direction = unit_vector(&r.dir);

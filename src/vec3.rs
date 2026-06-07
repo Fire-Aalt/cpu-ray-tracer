@@ -58,11 +58,11 @@ impl DivAssign<f32> for Vec3 {
 }
 
 impl Vec3 {
-    fn length(&self) -> f32 {
+    pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
     }
     
-    fn length_squared(&self) -> f32 {
+    pub fn length_squared(&self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 }
