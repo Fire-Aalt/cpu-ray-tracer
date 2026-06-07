@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
 
@@ -12,7 +12,7 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
-        assert_eq!(outward_normal.length_squared(), 1.0);
+        assert!(1.0 - outward_normal.length_squared() < 0.0001);
         
         self.front_face = dot(&ray.dir, outward_normal) < 0.0;
         self.normal = if self.front_face {
@@ -24,6 +24,6 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32, record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool;
 }
 

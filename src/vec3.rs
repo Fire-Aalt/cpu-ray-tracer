@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+use crate::color::Color;
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -64,6 +65,10 @@ impl Vec3 {
     
     pub fn length_squared(&self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn as_color(&self) -> Color {
+        Color { r: self.x, g: self.y, b: self.z }
     }
 }
 

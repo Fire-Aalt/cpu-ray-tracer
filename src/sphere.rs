@@ -1,5 +1,6 @@
 use std::cmp::max;
 use crate::hittable::{HitRecord, Hittable};
+use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
 
@@ -15,7 +16,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool {
         let oc = self.center - ray.origin;
         let a = ray.dir.length_squared();
         let h = dot(&ray.dir, &oc);
@@ -28,9 +29,9 @@ impl Hittable for Sphere {
         
         let sqrt_d = discriminant.sqrt();
         let mut root = (h - sqrt_d) / a;
-        if root <= ray_tmin || root >= ray_tmax {
+        if !ray_i.surrounds(root) {
             root = (h + sqrt_d) / a;
-            if root <= ray_tmin || root > ray_tmax {
+            if !ray_i.surrounds(root) {
                 return false
             }
         }

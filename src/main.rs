@@ -4,47 +4,45 @@ mod ray;
 mod hittable;
 mod sphere;
 mod hittable_list;
+mod utils;
+mod interval;
 
+use crate::color::Color;
+use crate::hittable::{HitRecord, Hittable};
+use crate::hittable_list::HittableList;
+use crate::ray::Ray;
+use crate::sphere::Sphere;
+use crate::vec3::{unit_vector, Vec3};
 use std::fs::File;
 use std::io::Write;
-use crate::color::Color;
-use crate::ray::Ray;
-use crate::vec3::{dot, unit_vector, Vec3};
+use crate::interval::Interval;
 
-fn hit_sphere(center: &Vec3, radius: f32, ray: &Ray) -> f32 {
-    let oc = *center - ray.origin;
-    let a = ray.dir.length_squared();
-    let h = dot(&ray.dir, &oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-    
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (h - discriminant.sqrt()) / a
-    }
-}
-
-fn ray_color(r: &Ray) -> Color {
-    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        let N = unit_vector(&(r.at(t) - Vec3::new(0.0, 0.0, -1.0)));
-        return Color::new(N.x + 1.0, N.y + 1.0, N.z + 1.0) * 0.5;
+fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
+    let mut record = HitRecord::default();
+    if world.hit(ray, Interval::new(0.0, f32::INFINITY), &mut record) {
+        return (record.normal.as_color() + Color::new(1.0, 1.0, 1.0)) * 0.5
     }
     
-    let unit_direction = unit_vector(&r.dir);
+    let unit_direction = unit_vector(&ray.dir);
     let a = 0.5 * (unit_direction.y + 1.0);
     Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a
 }
 
 fn main() {
+    // Image
     const ASPECT_RATIO: f32 = 16.0 / 9.0;
     let image_width = 400;
     
     let mut image_height = (image_width as f32 / ASPECT_RATIO) as i32;
     image_height = if image_height < 1 { 1 } else { image_height };
+
+    // World
     
+    let mut world = HittableList::new();
     
+    world.add(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+
     let focal_length = 1.0;
     let viewport_height = 2.0;
     let viewport_width = viewport_height * (image_width as f32 / image_height as f32);
@@ -71,7 +69,7 @@ fn main() {
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(camera_center, ray_direction);
             
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             writeln!(file, "{}", pixel_color).unwrap();
         }
     }
