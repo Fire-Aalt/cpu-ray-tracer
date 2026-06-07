@@ -1,6 +1,7 @@
 use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub};
 use crate::color::Color;
+use crate::utils::{random_f32, random_range_f32};
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -13,6 +14,46 @@ impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
     }
+    
+    pub fn random() -> Vec3 {
+        Vec3::new(random_f32(), random_f32(), random_f32())
+    }
+
+    pub fn random_range(range: Range<f32>) -> Vec3 {
+        Vec3::new(random_range_f32(range.clone()), random_range_f32(range.clone()), random_range_f32(range))
+    }
+    
+    pub fn random_unit_vector() -> Vec3 {
+        loop {
+            let p = Vec3::random_range(-1.0..1.0);
+            let len_sq = p.length_squared();
+            
+            if len_sq > 1e-7 && len_sq < 1.0 {
+                return p / len_sq.sqrt();
+            }
+        }
+    }
+    
+    pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
+        let on_unit_sphere = Vec3::random_unit_vector();
+        if dot(&on_unit_sphere, normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
+    }
+    
+    pub fn length(&self) -> f32 {
+        self.length_squared().sqrt()
+    }
+
+    pub fn length_squared(&self) -> f32 {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn as_color(&self) -> Color {
+        Color { r: self.x, g: self.y, b: self.z }
+    }
 }
 
 impl Neg for Vec3 {
@@ -20,19 +61,6 @@ impl Neg for Vec3 {
 
     fn neg(self) -> Self::Output {
         Vec3 {x: -self.x, y: -self.y, z: -self.z }
-    }
-}
-
-impl Index<i32> for Vec3 {
-    type Output = f32;
-
-    fn index(&self, index: i32) -> &Self::Output {
-        match index { 
-            0 => &self.x,
-            1 => &self.y,
-            2 => &self.z,
-            _ => unimplemented!("Impossible index {}", index),
-        }
     }
 }
 
@@ -55,20 +83,6 @@ impl MulAssign<f32> for Vec3 {
 impl DivAssign<f32> for Vec3 {
     fn div_assign(&mut self, t: f32) {
         *self *= 1.0 / t;
-    }
-}
-
-impl Vec3 {
-    pub fn length(&self) -> f32 {
-        self.length_squared().sqrt()
-    }
-    
-    pub fn length_squared(&self) -> f32 {
-        self.x * self.x + self.y * self.y + self.z * self.z
-    }
-
-    pub fn as_color(&self) -> Color {
-        Color { r: self.x, g: self.y, b: self.z }
     }
 }
 

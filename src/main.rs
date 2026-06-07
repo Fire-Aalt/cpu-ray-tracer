@@ -21,6 +21,8 @@ fn main() {
 
     let mut camera = Camera::default();
     camera.image_width = 400;
+    camera.samples_per_pixel = 20;
+    camera.max_depth = 50;
     
     camera.render(&world);
 }

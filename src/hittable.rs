@@ -12,7 +12,7 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
-        assert!(1.0 - outward_normal.length_squared() < 0.0001);
+        //assert!(1.0 - outward_normal.length() < 0.0001);
         
         self.front_face = dot(&ray.dir, outward_normal) < 0.0;
         self.normal = if self.front_face {

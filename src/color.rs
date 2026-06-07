@@ -60,9 +60,9 @@ impl DivAssign<f32> for Color {
 
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let r = self.r;
-        let g = self.g;
-        let b = self.b;
+        let r = linear_to_gamma(self.r);
+        let g = linear_to_gamma(self.g);
+        let b = linear_to_gamma(self.b);
 
         const INTENSITY: Interval = Interval::new(0.000, 0.999);
         let ir = (255.0 * INTENSITY.clamp(r)) as i32;
@@ -112,4 +112,11 @@ impl Div<f32> for Color {
     fn div(self, t: f32) -> Self::Output {
         self * (1.0 / t)
     }
+}
+
+fn linear_to_gamma(linear_component: f32) -> f32 {
+    if linear_component > 0.0 {
+        return linear_component.sqrt()
+    }
+    0.0
 }

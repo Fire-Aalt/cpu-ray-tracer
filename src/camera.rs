@@ -11,6 +11,7 @@ pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: i32,
     pub samples_per_pixel: i32,
+    pub max_depth: i32,
     image_height: i32,
     pixel_samples_scale: f32,
     center: Vec3,
@@ -24,6 +25,7 @@ impl Default for Camera {
         Camera { aspect_ratio: 16.0 / 9.0,
             image_width: 320,
             samples_per_pixel: 10,
+            max_depth: 10,
             image_height: Default::default(),
             pixel_samples_scale: Default::default(),
             center: Default::default(),
@@ -48,7 +50,7 @@ impl Camera {
                 
                 for _ in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
-                    pixel_color += self.ray_color(&r, world);
+                    pixel_color += self.ray_color(&r, self.max_depth, world);
                 }
                 writeln!(file, "{}", pixel_color * self.pixel_samples_scale).unwrap();
             }
@@ -96,11 +98,16 @@ impl Camera {
         Vec3::new(random_f32() - 0.5, random_f32() - 0.5, 0.0)
     }
     
-    fn ray_color(&self, ray: &Ray, world: &dyn Hittable) -> Color {
+    fn ray_color(&self, ray: &Ray, depth: i32, world: &dyn Hittable) -> Color {
+        if depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        
         let mut record = HitRecord::default();
         
-        if world.hit(ray, Interval::new(0.0, f32::INFINITY), &mut record) {
-            return (record.normal.as_color() + Color::new(1.0, 1.0, 1.0)) * 0.5
+        if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
+            let direction = record.normal + Vec3::random_unit_vector();
+            return self.ray_color(&Ray::new(record.point, direction), depth - 1, world) * 0.5 // <- reflectance
         }
 
         let unit_direction = unit_vector(&ray.dir);
