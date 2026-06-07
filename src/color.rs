@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+use crate::interval::Interval;
 
 #[derive(Clone, Copy, Default)]
 pub struct Color {
@@ -63,9 +64,10 @@ impl Display for Color {
         let g = self.g;
         let b = self.b;
 
-        let ir = (255.999 * r) as i32;
-        let ig = (255.999 * g) as i32;
-        let ib = (255.999 * b) as i32;
+        const INTENSITY: Interval = Interval::new(0.000, 0.999);
+        let ir = (255.0 * INTENSITY.clamp(r)) as i32;
+        let ig = (255.0 * INTENSITY.clamp(g)) as i32;
+        let ib = (255.0 * INTENSITY.clamp(b)) as i32;
 
         write!(f, "{} {} {}", ir, ig, ib)
     }
