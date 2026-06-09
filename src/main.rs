@@ -90,7 +90,7 @@ fn main() {
     world.add(Rc::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3)));
 
     // This line enables BVH acceleration.
-    //let world = HittableList::from_one(Rc::new(BVHNode::new_root(&mut world.objects)));
+    let world = HittableList::from_one(Rc::new(BVHNode::new_root(&mut world.objects)));
     
     let mut cam = Camera::default();
     cam.aspect_ratio      = 16.0 / 9.0;

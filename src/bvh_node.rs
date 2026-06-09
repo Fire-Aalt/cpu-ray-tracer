@@ -77,11 +77,10 @@ impl Hittable for BVHNode {
             return false;
         }
         
-        let hit_left = self.left.hit(ray, ray_i, record);
-        let new_max = if hit_left { record.t } else { ray_i.max };
-        let hit_right = self.right.hit(ray, Interval::new(ray_i.min, new_max), record);
-        
-        hit_left || hit_right
+        if self.left.hit(ray, ray_i, record) {
+            return true;
+        }
+        self.right.hit(ray, ray_i, record)
     }
 
     fn bounding_box(&self) -> AABB {
