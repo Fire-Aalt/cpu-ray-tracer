@@ -105,9 +105,8 @@ impl Camera {
         span!(Level::TRACE, "initialize camera").in_scope(|| {
             self.initialize();
         });
-        
-        let mut file = File::create("image.ppm").unwrap();
-        writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
+
+        let mut pixel_data = vec![Color::default(); (self.image_width * self.image_height) as usize];
 
         for j in 0..self.image_height {
             println!("Scanlines remaining: {}", self.image_height - j);
@@ -120,11 +119,25 @@ impl Camera {
                         let r = self.get_ray(i, j);
                         pixel_color += self.ray_color(&r, self.max_depth, world);
                     }
-                    writeln!(file, "{}", pixel_color * self.pixel_samples_scale).unwrap();
+                    pixel_data[(j * self.image_width + i) as usize] = pixel_color * self.pixel_samples_scale;
                 }
             })
         }
 
+        println!("Constructing an image...");
+        let mut file = File::create("image.ppm").unwrap();
+        writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
+
+        span!(Level::TRACE, "construct an image").in_scope(|| {
+            for j in 0..self.image_height {
+                span!(Level::TRACE, "scanline").in_scope(|| {
+                    for i in 0..self.image_width {
+                        let pixel = pixel_data[(j * self.image_width + i) as usize];
+                        writeln!(file, "{}", pixel).unwrap();
+                    }
+                })
+            }
+        });
         println!("Done.");
     }
     
