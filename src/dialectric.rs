@@ -3,7 +3,7 @@ use crate::hittable::HitRecord;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::utils::random_f32;
-use crate::vec3::{dot, unit_vector, Vec3};
+use crate::vec3::{dot, Vec3};
 
 pub struct Dialectric {
     // Refractive index in vacuum or air, or the ratio of the material's refractive index over
@@ -29,7 +29,7 @@ impl Material for Dialectric {
         *attenuation = Color::new(1.0, 1.0, 1.0);
         let ri = if hit_rec.front_face {1.0 / self.refraction_index} else { self.refraction_index };
         
-        let unit_direction = unit_vector(&r_in.dir);
+        let unit_direction = r_in.dir.unit_vector();
         let cos_theta = dot(&(-unit_direction), &hit_rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         

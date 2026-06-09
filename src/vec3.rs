@@ -14,6 +14,10 @@ impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
     }
+
+    pub fn unit_vector(&self) -> Vec3 {
+        *self / self.length()
+    }
     
     pub fn random() -> Vec3 {
         Vec3::new(random_f32(), random_f32(), random_f32())
@@ -40,6 +44,15 @@ impl Vec3 {
             on_unit_sphere
         } else {
             -on_unit_sphere
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(random_range_f32(-1.0..1.0), random_range_f32(-1.0..1.0), 0.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
         }
     }
     
@@ -159,8 +172,4 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
         y: u.z * v.x - u.x * v.z,
         z: u.x * v.y - u.y * v.x
     }
-}
-
-pub fn unit_vector(v: &Vec3) -> Vec3 {
-    *v / v.length()
 }

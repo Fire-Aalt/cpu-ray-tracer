@@ -59,6 +59,8 @@ fn main() {
     camera.look_at = Vec3::new(0.0, 0.0, -1.0);
     camera.v_up = Vec3::new(0.0, 1.0, 0.0);
     
+    camera.defocus_angle = 10.0;
+    camera.focus_distance = 3.4;
     
     camera.render(&world);
 }
