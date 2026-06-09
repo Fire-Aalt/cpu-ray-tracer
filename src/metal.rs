@@ -17,10 +17,10 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
-        let mut reflected = Vec3::reflect(&r_in.dir, &hit_rec.normal);
+        let mut reflected = Vec3::reflect(r_in.direction(), &hit_rec.normal);
         reflected = reflected.unit_vector() + (Vec3::random_unit_vector() * self.fuzz);
-        *scattered = Ray::new(hit_rec.point, reflected);
+        *scattered = Ray::new_t(hit_rec.point, reflected, r_in.time());
         *attenuation = self.albedo;
-        dot(&scattered.dir, &hit_rec.normal) > 0.0
+        dot(scattered.direction(), &hit_rec.normal) > 0.0
     }
 }

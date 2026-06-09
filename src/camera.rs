@@ -132,8 +132,9 @@ impl Camera {
         
         let ray_origin = if self.defocus_angle <= 0.0 { self.center } else { self.defocus_disk_sample() };
         let ray_direction = pixel_sample - ray_origin;
+        let ray_time = random_f32();
         
-        Ray::new(ray_origin, ray_direction)
+        Ray::new_t(ray_origin, ray_direction, ray_time)
     }
     
     fn sample_square() -> Vec3 {
@@ -163,7 +164,7 @@ impl Camera {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        let unit_direction = ray.dir.unit_vector();
+        let unit_direction = ray.direction().unit_vector();
         let a = 0.5 * (unit_direction.y + 1.0);
         Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a
     }

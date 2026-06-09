@@ -12,19 +12,16 @@ mod lambertian;
 mod metal;
 mod dialectric;
 
-use std::collections::VecDeque;
-use std::f32::consts::PI;
-use std::rc::Rc;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::dialectric::Dialectric;
 use crate::hittable_list::HittableList;
 use crate::lambertian::Lambertian;
-use crate::material::Material;
 use crate::metal::Metal;
 use crate::sphere::Sphere;
 use crate::utils::{random_f32, random_range_f32};
 use crate::vec3::Vec3;
+use std::rc::Rc;
 
 fn main() {
     let mut world = HittableList::new();
@@ -51,20 +48,23 @@ fn main() {
             let center = Vec3::new(a as f32 + 0.9*random_f32(), 0.2, b as f32 + 0.9*random_f32());
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                let sphere_material: Rc<dyn Material> = if choose_mat < 0.8 {
+                if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Vec3::random().as_color() * Vec3::random().as_color();
-                    Rc::new(Lambertian::new(albedo))
+                    let sphere_material = Rc::new(Lambertian::new(albedo));
+                    let center2 = center + Vec3::new(0.0, random_range_f32(0.0..0.5), 0.0);
+                    world.add(Box::new(Sphere::new_dynamic(center, center2, 0.2, sphere_material)));
                 } else if (choose_mat < 0.95) {
                     // metal
                     let albedo = Vec3::random_range(0.5..1.0).as_color();
                     let fuzz = random_range_f32(0.0..0.5);
-                    Rc::new(Metal::new(albedo, fuzz))
+                    let sphere_material = Rc::new(Metal::new(albedo, fuzz));
+                    world.add(Box::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
                     // glass
-                    Rc::new(Dialectric::new(1.5))
-                };
-                world.add(Box::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Rc::new(Dialectric::new(1.5));
+                    world.add(Box::new(Sphere::new(center, 0.2, sphere_material)));
+                }
             }
         }
     }
@@ -80,7 +80,7 @@ fn main() {
     
     let mut cam = Camera::default();
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 720;
+    cam.image_width       = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 

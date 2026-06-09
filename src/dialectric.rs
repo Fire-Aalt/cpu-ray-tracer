@@ -29,7 +29,7 @@ impl Material for Dialectric {
         *attenuation = Color::new(1.0, 1.0, 1.0);
         let ri = if hit_rec.front_face {1.0 / self.refraction_index} else { self.refraction_index };
         
-        let unit_direction = r_in.dir.unit_vector();
+        let unit_direction = r_in.direction().unit_vector();
         let cos_theta = dot(&(-unit_direction), &hit_rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         
@@ -40,7 +40,7 @@ impl Material for Dialectric {
             Vec3::refract(&unit_direction, &hit_rec.normal, ri)
         };
         
-        *scattered = Ray::new(hit_rec.point, direction);
+        *scattered = Ray::new_t(hit_rec.point, direction, r_in.time());
         true
     }
 }
