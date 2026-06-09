@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::ops::{Range, RangeInclusive};
 
 const PI: f32 = std::f32::consts::PI;
 
@@ -11,5 +11,9 @@ pub fn random_f32() -> f32 {
 }
 
 pub fn random_range_f32(range: Range<f32>) -> f32 {
+    rand::random_range(range)
+}
+
+pub fn random_range_i32(range: RangeInclusive<i32>) -> i32 {
     rand::random_range(range)
 }

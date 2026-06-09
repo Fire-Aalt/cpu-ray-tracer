@@ -93,6 +93,19 @@ impl Neg for Vec3 {
     }
 }
 
+impl Index<i32> for Vec3 {
+    type Output = f32;
+
+    fn index(&self, index: i32) -> &Self::Output {
+        match index { 
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("index out of range")
+        }
+    }
+}
+
 impl AddAssign<Vec3> for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
         self.x += rhs.x;

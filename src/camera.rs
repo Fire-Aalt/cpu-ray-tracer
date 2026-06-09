@@ -5,6 +5,7 @@ use crate::ray::Ray;
 use crate::vec3::{cross, Vec3};
 use std::fs::File;
 use std::io::Write;
+use tracing::{span, Level};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
@@ -101,22 +102,27 @@ impl Camera {
     }
     
     pub fn render(&mut self, world: &dyn Hittable) {
-        self.initialize();
+        span!(Level::TRACE, "initialize camera").in_scope(|| {
+            self.initialize();
+        });
         
         let mut file = File::create("image.ppm").unwrap();
         writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
 
         for j in 0..self.image_height {
             println!("Scanlines remaining: {}", self.image_height - j);
-            for i in 0..self.image_width {
-                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                
-                for _ in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i, j);
-                    pixel_color += self.ray_color(&r, self.max_depth, world);
+
+            span!(Level::TRACE, "scanline").in_scope(|| {
+                for i in 0..self.image_width {
+                    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+
+                    for _ in 0..self.samples_per_pixel {
+                        let r = self.get_ray(i, j);
+                        pixel_color += self.ray_color(&r, self.max_depth, world);
+                    }
+                    writeln!(file, "{}", pixel_color * self.pixel_samples_scale).unwrap();
                 }
-                writeln!(file, "{}", pixel_color * self.pixel_samples_scale).unwrap();
-            }
+            })
         }
 
         println!("Done.");

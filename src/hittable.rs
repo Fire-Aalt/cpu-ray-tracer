@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::material::Material;
 use crate::ray::Ray;
@@ -28,5 +29,7 @@ impl HitRecord {
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool;
+    
+    fn bounding_box(&self) -> AABB;
 }
 
