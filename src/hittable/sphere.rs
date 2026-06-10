@@ -43,7 +43,7 @@ impl Sphere {
         &self.bbox
     }
 
-    fn get_sphere_uv(&self, point: &Vec3, u: &mut f32, v: &mut f32) {
+    fn get_sphere_uv(point: &Vec3, u: &mut f32, v: &mut f32) {
         // point: a given point on the sphere of radius one, centered at the origin.
         // u: returned value [0,1] of angle around the Y axis from X=-1.
         // v: returned value [0,1] of angle from Y=-1 to Y=+1.
@@ -86,7 +86,7 @@ impl Hittable for Sphere {
         record.point = ray.at(root);
         let outward_normal = (record.point - current_center) / self.radius;
         record.set_face_normal(ray, &outward_normal);
-        self.get_sphere_uv(&outward_normal, &mut record.u, &mut record.v);
+        Self::get_sphere_uv(&outward_normal, &mut record.u, &mut record.v);
         record.material = Some(self.material.clone());
         
         true
