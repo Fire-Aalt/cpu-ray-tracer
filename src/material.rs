@@ -2,6 +2,6 @@ use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
 
-pub trait Material {
+pub trait Material: Send + Sync {
     fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool;
 }

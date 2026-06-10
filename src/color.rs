@@ -13,6 +13,19 @@ impl Color {
     pub fn new(r: f32, g: f32, b: f32) -> Self {
         Color { r, g, b }
     }
+    
+    pub fn fmt(&self) -> (u8, u8, u8) {
+        let r = linear_to_gamma(self.r);
+        let g = linear_to_gamma(self.g);
+        let b = linear_to_gamma(self.b);
+
+        const INTENSITY: Interval = Interval::new(0.000, 0.999);
+        let ir = (255.0 * INTENSITY.clamp(r)) as u8;
+        let ig = (255.0 * INTENSITY.clamp(g)) as u8;
+        let ib = (255.0 * INTENSITY.clamp(b)) as u8;
+        
+        (ir, ig, ib)
+    }
 }
 
 impl Neg for Color {

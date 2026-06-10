@@ -3,18 +3,18 @@ use crate::interval::Interval;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
-use std::rc::Rc;
+use std::sync::Arc;
 use crate::aabb::AABB;
 
 pub struct Sphere {
     center: Ray,
     radius: f32,
-    material: Rc<dyn Material>,
+    material: Arc<dyn Material>,
     bbox: AABB
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32, mat: Rc<dyn Material>) -> Self {
+    pub fn new(center: Vec3, radius: f32, mat: Arc<dyn Material>) -> Self {
         let r_vec = Vec3::new(radius, radius, radius);
         
         Sphere { 
@@ -25,7 +25,7 @@ impl Sphere {
         }
     }
     
-    pub fn new_dynamic(center1: Vec3, center2: Vec3, radius: f32, mat: Rc<dyn Material>) -> Self {
+    pub fn new_dynamic(center1: Vec3, center2: Vec3, radius: f32, mat: Arc<dyn Material>) -> Self {
         let r_vec = Vec3::new(radius, radius, radius);
         let box1 = AABB::from_min_max(center1 - r_vec, center1 + r_vec);
         let box2 = AABB::from_min_max(center2 - r_vec, center2 + r_vec);

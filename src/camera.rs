@@ -1,16 +1,20 @@
+use rayon::iter::IndexedParallelIterator;
+use rayon::iter::ParallelIterator;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::vec3::{cross, Vec3};
 use std::fs::File;
-use std::io::Write;
-use tracing::{span, Level};
+use std::io::{BufWriter, Write};
+use rayon::iter::IntoParallelRefMutIterator;
+use rayon::prelude::{ParallelSliceMut};
+use tracing::{span, trace, trace_span, Level};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
     pub aspect_ratio: f32,
-    pub image_width: i32,
+    pub image_width: usize,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
     pub v_fov: f32,
@@ -19,7 +23,7 @@ pub struct Camera {
     pub v_up: Vec3,
     pub defocus_angle: f32,
     pub focus_distance: f32,
-    image_height: i32,
+    image_height: usize,
     pixel_samples_scale: f32,
     center: Vec3,
     pixel00_loc: Vec3,
@@ -65,7 +69,7 @@ impl Default for Camera {
 
 impl Camera {
     fn initialize(&mut self) {
-        self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
+        self.image_height = (self.image_width as f32 / self.aspect_ratio) as usize;
         self.image_height = if self.image_height < 1 { 1 } else { self.image_height };
 
         self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f32;
@@ -106,39 +110,48 @@ impl Camera {
             self.initialize();
         });
 
-        let mut pixel_data = vec![Color::default(); (self.image_width * self.image_height) as usize];
+        let mut pixel_data = vec![u8::default(); self.image_width * self.image_height * 3];
 
-        for j in 0..self.image_height {
-            println!("Scanlines remaining: {}", self.image_height - j);
+        println!("Rendering...");
+        pixel_data.par_chunks_mut(self.image_width * 3)
+            .enumerate()
+            .for_each(|(y, row)| {
+                trace_span!("scanline").in_scope(||
+                    for x in 0..self.image_width {
+                        let mut accumulated_color = Color::default();
+                        for _ in 0..self.samples_per_pixel {
+                            let r = self.get_ray(x as i32, y as i32);
+                            accumulated_color += self.ray_color(&r, self.max_depth, world);
+                        }
 
-            span!(Level::TRACE, "scanline").in_scope(|| {
-                for i in 0..self.image_width {
-                    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-
-                    for _ in 0..self.samples_per_pixel {
-                        let r = self.get_ray(i, j);
-                        pixel_color += self.ray_color(&r, self.max_depth, world);
+                        let accumulated_color = accumulated_color * self.pixel_samples_scale;
+                        let rgb = accumulated_color.fmt();
+                        row[x * 3] = rgb.0;
+                        row[x * 3 + 1] = rgb.1;
+                        row[x * 3 + 2] = rgb.2;
                     }
-                    pixel_data[(j * self.image_width + i) as usize] = pixel_color * self.pixel_samples_scale;
-                }
-            })
-        }
+                );
+            });
 
-        println!("Constructing an image...");
-        let mut file = File::create("image.ppm").unwrap();
-        writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
-
-        span!(Level::TRACE, "construct an image").in_scope(|| {
-            for j in 0..self.image_height {
-                span!(Level::TRACE, "scanline").in_scope(|| {
-                    for i in 0..self.image_width {
-                        let pixel = pixel_data[(j * self.image_width + i) as usize];
-                        writeln!(file, "{}", pixel).unwrap();
-                    }
-                })
-            }
+        trace_span!("construct an image").in_scope(|| {
+            self.write_ppm_rgb("image.ppm", &pixel_data).expect("Failed to write image to file.")
         });
         println!("Done.");
+    }
+
+    fn write_ppm_rgb(&self,
+        path: &str,
+        rgb: &[u8],
+    ) -> std::io::Result<()> {
+        assert_eq!(rgb.len(), self.image_width * self.image_height * 3);
+
+        let file = File::create(path)?;
+        let mut writer = BufWriter::new(file);
+
+        write!(writer, "P6\n{} {}\n255\n", self.image_width, self.image_height)?;
+        writer.write_all(rgb)?;
+
+        Ok(())
     }
     
     fn get_ray(&self, i: i32, j: i32) -> Ray {

@@ -23,7 +23,7 @@ use crate::metal::Metal;
 use crate::sphere::Sphere;
 use crate::utils::{random_f32, random_range_f32};
 use crate::vec3::Vec3;
-use std::rc::Rc;
+use std::sync::Arc;
 use tracing::{debug_span, span, Level};
 use crate::bvh_node::BVHNode;
 
@@ -50,8 +50,8 @@ fn main() {
     // world.add(Box::new(Sphere::new(Vec3::new( 1.0,    0.0, -1.0),   0.5, material_right)));
 
 
-    let ground_material = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    world.add(Rc::new(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, ground_material)));
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, ground_material)));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -62,40 +62,40 @@ fn main() {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Vec3::random().as_color() * Vec3::random().as_color();
-                    let sphere_material = Rc::new(Lambertian::new(albedo));
+                    let sphere_material = Arc::new(Lambertian::new(albedo));
                     let center2 = center + Vec3::new(0.0, random_range_f32(0.0..0.5), 0.0);
-                    world.add(Rc::new(Sphere::new_dynamic(center, center2, 0.2, sphere_material)));
+                    world.add(Arc::new(Sphere::new_dynamic(center, center2, 0.2, sphere_material)));
                 } else if (choose_mat < 0.95) {
                     // metal
                     let albedo = Vec3::random_range(0.5..1.0).as_color();
                     let fuzz = random_range_f32(0.0..0.5);
-                    let sphere_material = Rc::new(Metal::new(albedo, fuzz));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Arc::new(Metal::new(albedo, fuzz));
+                    world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
                     // glass
-                    let sphere_material = Rc::new(Dialectric::new(1.5));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Arc::new(Dialectric::new(1.5));
+                    world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 }
             }
         }
     }
 
-    let material1 = Rc::new(Dialectric::new(1.5));
-    world.add(Rc::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, material1)));
+    let material1 = Arc::new(Dialectric::new(1.5));
+    world.add(Arc::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, material1)));
 
-    let material2 = Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
-    world.add(Rc::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, material2)));
+    let material2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    world.add(Arc::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, material2)));
 
-    let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
-    world.add(Rc::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3)));
+    let material3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
+    world.add(Arc::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3)));
 
     // This line enables BVH acceleration.
-    let world = HittableList::from_one(Rc::new(BVHNode::new_root(&mut world.objects)));
+    let world = HittableList::from_one(Arc::new(BVHNode::new_root(&mut world.objects)));
     
     let mut cam = Camera::default();
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 20;
+    cam.image_width       = 1080;
+    cam.samples_per_pixel = 50;
     cam.max_depth         = 50;
 
     cam.v_fov     = 20.0;
