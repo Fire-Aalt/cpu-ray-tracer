@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+use std::io::ErrorKind::QuotaExceeded;
 use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
 use crate::material::Material;
@@ -41,6 +43,21 @@ impl Sphere {
     pub fn bounding_box(&self) -> &AABB {
         &self.bbox
     }
+
+    fn get_sphere_uv(&self, point: &Vec3, u: &mut f32, v: &mut f32) {
+        // point: a given point on the sphere of radius one, centered at the origin.
+        // u: returned value [0,1] of angle around the Y axis from X=-1.
+        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+        //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+        //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+        //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+        
+        let theta = (-point.y).acos();
+        let phi = (-point.z).atan2(point.x) + PI;
+        
+        *u = phi / (2.0 * PI);
+        *v = theta / PI;
+    }
 }
 
 impl Hittable for Sphere {
@@ -70,6 +87,7 @@ impl Hittable for Sphere {
         record.point = ray.at(root);
         let outward_normal = (record.point - current_center) / self.radius;
         record.set_face_normal(ray, &outward_normal);
+        self.get_sphere_uv(&outward_normal, &mut record.u, &mut record.v);
         record.material = Some(self.material.clone());
         
         true
