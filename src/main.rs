@@ -9,6 +9,7 @@ mod material;
 mod aabb;
 mod texture;
 mod scene;
+mod image;
 
 use crate::hittable::{BVHNode, HittableList, Sphere};
 use crate::material::{Dialectric, Lambertian, Metal};
@@ -27,7 +28,7 @@ fn main() {
     let _client = tracy_client::Client::start();
     
     let mut scene = Scene::new();
-    build_scene(SceneId::CheckerSpheres, &mut scene);
+    build_scene(SceneId::Earth, &mut scene);
     
     // This line enables BVH acceleration.
     let world = HittableList::from_one(Arc::new(BVHNode::new_root(&mut scene.world.objects)));

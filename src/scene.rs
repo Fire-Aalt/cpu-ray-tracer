@@ -1,5 +1,6 @@
 mod bouncing_balls;
 mod checker_spheres;
+mod earth;
 
 use std::sync::Arc;
 use crate::camera::Camera;
@@ -25,12 +26,14 @@ impl Scene {
 
 pub enum SceneId {
     BouncingBalls,
-    CheckerSpheres
+    CheckerSpheres,
+    Earth,
 }
 
 pub fn build_scene(id: SceneId, scene: &mut Scene) {
     match id {
         SceneId::BouncingBalls => bouncing_balls::build(scene),
         SceneId::CheckerSpheres => checker_spheres::build(scene),
+        SceneId::Earth => earth::build(scene),
     }
 }

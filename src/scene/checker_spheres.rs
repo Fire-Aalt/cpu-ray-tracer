@@ -18,7 +18,7 @@ pub fn build(scene: &mut Scene) {
     scene.camera.max_depth         = 50;
 
     scene.camera.v_fov     = 20.0;
-    scene.camera.look_from = Vec3::new(13.0,2.0,3.0);
+    scene.camera.look_from = Vec3::new(0.0,12.0,0.0);
     scene.camera.look_at   = Vec3::new(0.0,0.0,0.0);
     scene.camera.v_up      = Vec3::new(0.0,1.0,0.0);
 
