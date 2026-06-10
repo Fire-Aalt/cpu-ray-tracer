@@ -7,9 +7,9 @@ use crate::ray::Ray;
 use crate::vec3::{cross, Vec3};
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use rayon::iter::IntoParallelRefMutIterator;
+use std::sync::Mutex;
 use rayon::prelude::{ParallelSliceMut};
-use tracing::{span, trace, trace_span, Level};
+use tracing::{span, trace_span, Level};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
@@ -112,6 +112,8 @@ impl Camera {
 
         let mut pixel_data = vec![u8::default(); self.image_width * self.image_height * 3];
 
+        let progress = Mutex::new((0usize, 1usize));
+        
         println!("Rendering...");
         pixel_data.par_chunks_mut(self.image_width * 3)
             .enumerate()
@@ -131,6 +133,15 @@ impl Camera {
                         row[x * 3 + 2] = rgb.2;
                     }
                 );
+                
+                let mut progress = progress.lock().expect("Progress mutex was poisoned");
+                progress.0 += 1;
+                let completed_percentage = progress.0 * 100 / self.image_height;
+
+                while progress.1 <= completed_percentage {
+                    println!("Rendering: {}%", progress.1);
+                    progress.1 += 1;
+                }
             });
 
         trace_span!("construct an image").in_scope(|| {
