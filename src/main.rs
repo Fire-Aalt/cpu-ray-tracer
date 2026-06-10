@@ -2,30 +2,21 @@ mod vec3;
 mod color;
 mod ray;
 mod hittable;
-mod sphere;
-mod hittable_list;
 mod utils;
 mod interval;
 mod camera;
 mod material;
-mod lambertian;
-mod metal;
-mod dialectric;
 mod aabb;
-mod bvh_node;
+mod texture;
 
 use crate::camera::Camera;
 use crate::color::Color;
-use crate::dialectric::Dialectric;
-use crate::hittable_list::HittableList;
-use crate::lambertian::Lambertian;
-use crate::metal::Metal;
-use crate::sphere::Sphere;
+use crate::hittable::{BVHNode, HittableList, Sphere};
+use crate::material::{Dialectric, Lambertian, Metal};
 use crate::utils::{random_f32, random_range_f32};
 use crate::vec3::Vec3;
 use std::sync::Arc;
 use tracing::{debug_span, span, Level};
-use crate::bvh_node::BVHNode;
 
 use tracing_subscriber::layer::SubscriberExt;
 

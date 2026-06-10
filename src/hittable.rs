@@ -5,12 +5,22 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
 
+mod bvh_node;
+mod list;
+mod sphere;
+
+pub use bvh_node::BVHNode;
+pub use list::HittableList;
+pub use sphere::Sphere;
+
 #[derive(Clone, Default)]
 pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
     pub material: Option<Arc<dyn Material>>,
     pub t: f32,
+    pub u: f32,
+    pub v: f32,
     pub front_face: bool
 }
 
