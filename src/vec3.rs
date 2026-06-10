@@ -2,6 +2,7 @@ use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub};
 use crate::color::Color;
 use crate::utils::{random_f32, random_range_f32};
+use rand::RngExt;
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -29,11 +30,17 @@ impl Vec3 {
     
     pub fn random_unit_vector() -> Vec3 {
         loop {
-            let p = Vec3::random_range(-1.0..1.0);
-            let len_sq = p.length_squared();
-            
-            if len_sq > 1e-7 && len_sq < 1.0 {
-                return p / len_sq.sqrt();
+            let x = random_range_f32(-1.0..1.0);
+            let y = random_range_f32(-1.0..1.0);
+            let radius_squared = x * x + y * y;
+
+            if radius_squared < 1.0 {
+                let scale = 2.0 * (1.0 - radius_squared).sqrt();
+                return Vec3::new(
+                    x * scale,
+                    y * scale,
+                    1.0 - 2.0 * radius_squared,
+                );
             }
         }
     }
@@ -49,9 +56,11 @@ impl Vec3 {
 
     pub fn random_in_unit_disk() -> Vec3 {
         loop {
-            let p = Vec3::new(random_range_f32(-1.0..1.0), random_range_f32(-1.0..1.0), 0.0);
-            if p.length_squared() < 1.0 {
-                return p;
+            let x = random_range_f32(-1.0..1.0);
+            let y = random_range_f32(-1.0..1.0);
+
+            if x * x + y * y < 1.0 {
+                return Vec3::new(x, y, 0.0);
             }
         }
     }
