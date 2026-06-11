@@ -21,7 +21,7 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
+    fn scatter(&self, _r_in: &Ray, _hit_rec: &mut HitRecord, _attenuation: &mut Color, _scattered: &mut Ray) -> bool {
         false
     }
 

@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::Sphere;
 use crate::material::Lambertian;

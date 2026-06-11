@@ -18,7 +18,7 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn value(&self, u: f32, v: f32, p: &Vec3) -> Color {
+    fn value(&self, u: f32, v: f32, _p: &Vec3) -> Color {
         let u = u.clamp(0.0, 1.0);
         let v = 1.0 - v.clamp(0.0, 1.0);
         

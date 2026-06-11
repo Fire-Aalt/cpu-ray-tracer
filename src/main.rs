@@ -10,6 +10,8 @@ mod aabb;
 mod texture;
 mod scene;
 mod image;
+mod transform;
+mod quaternion;
 
 use crate::hittable::{BVHNode, HittableList};
 use std::sync::Arc;

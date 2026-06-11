@@ -1,8 +1,7 @@
-use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub};
 use crate::color::Color;
 use crate::utils::{random_f32, random_range_f32};
-use rand::RngExt;
+use std::fmt::Display;
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub};
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {

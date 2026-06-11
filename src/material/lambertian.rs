@@ -34,7 +34,7 @@ impl Material for Lambertian {
         true
     }
     
-    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Color {
         Color::BLACK
     }
 }

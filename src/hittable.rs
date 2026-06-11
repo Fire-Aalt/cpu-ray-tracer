@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::material::Material;
@@ -12,8 +11,8 @@ mod quad;
 
 pub use bvh_node::BVHNode;
 pub use list::HittableList;
-pub use sphere::Sphere;
 pub use quad::Quad;
+pub use sphere::Sphere;
 
 #[derive(Clone, Default)]
 pub struct HitRecord {
