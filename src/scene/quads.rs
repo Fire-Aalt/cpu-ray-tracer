@@ -1,8 +1,8 @@
 use crate::color::Color;
 use crate::hittable::Quad;
 use crate::material::Lambertian;
+use crate::math::Vec3;
 use crate::scene::Scene;
-use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
     // Materials

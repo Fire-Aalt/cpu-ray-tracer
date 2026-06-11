@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use crate::color::Color;
-use crate::vec3::Vec3;
+use crate::math::Vec3;
 
 use super::Texture;
 

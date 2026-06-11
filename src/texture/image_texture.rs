@@ -2,8 +2,8 @@ use std::path::Path;
 use std::sync::Arc;
 use crate::color::Color;
 use crate::image::Image;
+use crate::math::Vec3;
 use crate::texture::Texture;
-use crate::vec3::Vec3;
 
 pub struct ImageTexture {
     image: Image

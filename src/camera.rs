@@ -2,14 +2,12 @@ use rayon::iter::IndexedParallelIterator;
 use rayon::iter::ParallelIterator;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
-use crate::interval::Interval;
-use crate::ray::Ray;
-use crate::vec3::{cross, Vec3};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::sync::{Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
+use crate::math::{cross, Interval, Ray, Vec3};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {

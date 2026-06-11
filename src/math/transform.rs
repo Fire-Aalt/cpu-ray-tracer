@@ -1,7 +1,5 @@
 use std::ops::{Index, IndexMut, Mul, MulAssign};
-
-use crate::quaternion::Quaternion;
-use crate::vec3::Vec3;
+use crate::math::{Quaternion, Vec3};
 
 /// A column-major affine transform stored as four `Vec3` columns.
 ///
@@ -274,6 +272,7 @@ impl Mul<Vec3> for Transform {
 
 #[cfg(test)]
 mod tests {
+    use crate::math::{Quaternion, Vec3};
     use super::*;
 
     fn assert_vec3_near(actual: Vec3, expected: Vec3) {

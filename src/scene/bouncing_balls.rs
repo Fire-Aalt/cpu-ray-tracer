@@ -1,10 +1,10 @@
 use crate::color::Color;
 use crate::hittable::Sphere;
 use crate::material::{Dialectric, Lambertian, Metal};
+use crate::math::Vec3;
 use crate::scene::Scene;
 use crate::texture::CheckerTexture;
 use crate::utils::{random_f32, random_range_f32};
-use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
 

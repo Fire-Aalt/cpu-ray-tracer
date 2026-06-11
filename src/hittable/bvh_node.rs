@@ -1,10 +1,8 @@
-use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable};
-use crate::interval::Interval;
 use crate::material::Material;
-use crate::ray::Ray;
 use std::cmp::Ordering;
 use std::sync::Arc;
+use crate::math::{Interval, Ray, AABB};
 
 pub struct BVHNode {
     left: Arc<dyn Hittable>,

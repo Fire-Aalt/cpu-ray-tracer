@@ -1,8 +1,4 @@
-use crate::aabb::AABB;
-use crate::interval::Interval;
 use crate::material::Material;
-use crate::ray::Ray;
-use crate::vec3::{dot, Vec3};
 
 mod bvh_node;
 mod list;
@@ -13,6 +9,7 @@ pub use bvh_node::BVHNode;
 pub use list::HittableList;
 pub use quad::Quad;
 pub use sphere::Sphere;
+use crate::math::{dot, Interval, Ray, Vec3, AABB};
 
 #[derive(Clone, Default)]
 pub struct HitRecord {

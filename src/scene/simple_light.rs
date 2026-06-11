@@ -1,9 +1,9 @@
 use crate::color::Color;
 use crate::hittable::{Quad, Sphere};
 use crate::material::{DiffuseLight, Lambertian};
+use crate::math::Vec3;
 use crate::scene::Scene;
 use crate::texture::CheckerTexture;
-use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
     let pertext = CheckerTexture::from_colors(1.0, Color::WHITE, Color::BLACK);

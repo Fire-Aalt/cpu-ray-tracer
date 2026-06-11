@@ -1,11 +1,9 @@
 use crate::color::Color;
 use crate::hittable::Quad;
 use crate::material::{DiffuseLight, Lambertian};
-use crate::quaternion::Quaternion;
+use crate::math::{Quaternion, Transform, Vec3};
 use crate::scene::Scene;
-use crate::transform::Transform;
 use crate::utils::degrees_to_radians;
-use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
     let red = Lambertian::from_color(Color::new(0.65, 0.05, 0.05));

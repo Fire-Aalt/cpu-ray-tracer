@@ -1,6 +1,5 @@
 use crate::color::Color;
 use crate::hittable::HitRecord;
-use crate::ray::Ray;
 
 mod dialectric;
 mod lambertian;
@@ -11,7 +10,7 @@ pub use dialectric::Dialectric;
 pub use lambertian::Lambertian;
 pub use metal::Metal;
 pub use diffuse_light::DiffuseLight;
-use crate::vec3::Vec3;
+use crate::math::{Ray, Vec3};
 
 pub trait Material: Send + Sync {
     fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool;

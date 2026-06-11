@@ -1,6 +1,4 @@
-use crate::interval::Interval;
-use crate::ray::Ray;
-use crate::vec3::Vec3;
+use crate::math::{Interval, Ray, Vec3};
 
 #[derive(Clone, Copy, Default)]
 pub struct AABB {

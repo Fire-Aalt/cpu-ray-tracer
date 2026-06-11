@@ -2,8 +2,8 @@ use crate::hittable::Sphere;
 use crate::material::Lambertian;
 use crate::scene::Scene;
 use crate::texture::ImageTexture;
-use crate::vec3::Vec3;
 use std::path::Path;
+use crate::math::Vec3;
 
 pub fn build(scene: &mut Scene) {
     let earth_texture = ImageTexture::new(Path::new("images/earthmap.jpg"));

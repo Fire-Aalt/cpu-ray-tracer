@@ -1,6 +1,6 @@
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
-use crate::interval::Interval;
+use crate::math::Interval;
 
 #[derive(Clone, Copy, Default)]
 pub struct Color {

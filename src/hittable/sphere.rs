@@ -1,11 +1,8 @@
-use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable};
-use crate::interval::Interval;
 use crate::material::Material;
-use crate::ray::Ray;
-use crate::vec3::{dot, Vec3};
 use std::f32::consts::PI;
 use std::sync::Arc;
+use crate::math::{dot, Interval, Ray, Vec3, AABB};
 
 pub struct Sphere {
     center: Ray,

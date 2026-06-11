@@ -1,12 +1,7 @@
-use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable, HittableList};
-use crate::interval::Interval;
 use crate::material::Material;
-use crate::quaternion::Quaternion;
-use crate::ray::Ray;
-use crate::transform::Transform;
-use crate::vec3::{cross, dot, Vec3};
 use std::sync::Arc;
+use crate::math::{cross, dot, Interval, Quaternion, Ray, Transform, Vec3, AABB};
 
 pub struct Quad {
     q: Vec3,

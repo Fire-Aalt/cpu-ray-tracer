@@ -1,9 +1,9 @@
 use crate::color::Color;
 use crate::hittable::Sphere;
 use crate::material::Lambertian;
+use crate::math::Vec3;
 use crate::scene::Scene;
 use crate::texture::CheckerTexture;
-use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
     let checker = CheckerTexture::from_colors(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9));

@@ -2,9 +2,8 @@ use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::Material;
-use crate::ray::Ray;
+use crate::math::{Ray, Vec3};
 use crate::texture::{SolidColorTexture, Texture};
-use crate::vec3::Vec3;
 
 pub struct DiffuseLight {
     tex: Arc<dyn Texture>

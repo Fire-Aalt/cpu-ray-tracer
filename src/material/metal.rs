@@ -2,8 +2,7 @@ use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::Material;
-use crate::ray::Ray;
-use crate::vec3::{dot, Vec3};
+use crate::math::{dot, Ray, Vec3};
 
 pub struct Metal {
     albedo: Color,

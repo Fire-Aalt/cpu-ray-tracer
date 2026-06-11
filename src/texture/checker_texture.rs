@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use crate::color::Color;
+use crate::math::Vec3;
 use crate::texture::{SolidColorTexture, Texture};
-use crate::vec3::Vec3;
 
 pub struct CheckerTexture {
     inv_scale: f32,

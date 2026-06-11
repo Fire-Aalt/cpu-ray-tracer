@@ -2,9 +2,8 @@ use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::Material;
-use crate::ray::Ray;
+use crate::math::{dot, Ray, Vec3};
 use crate::utils::random_f32;
-use crate::vec3::{dot, Vec3};
 
 pub struct Dialectric {
     // Refractive index in vacuum or air, or the ratio of the material's refractive index over

@@ -1,17 +1,12 @@
-mod vec3;
 mod color;
-mod ray;
 mod hittable;
 mod utils;
-mod interval;
 mod camera;
 mod material;
-mod aabb;
 mod texture;
 mod scene;
 mod image;
-mod transform;
-mod quaternion;
+mod math;
 
 use crate::hittable::{BVHNode, HittableList};
 use std::sync::Arc;
