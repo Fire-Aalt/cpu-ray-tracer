@@ -5,11 +5,13 @@ mod dialectric;
 mod lambertian;
 mod metal;
 mod diffuse_light;
+mod isotropic;
 
-pub use dialectric::Dialectric;
-pub use lambertian::Lambertian;
-pub use metal::Metal;
-pub use diffuse_light::DiffuseLight;
+pub use dialectric::*;
+pub use lambertian::*;
+pub use metal::*;
+pub use diffuse_light::*;
+pub use isotropic::*;
 use crate::math::{Ray, Vec3};
 
 pub trait Material: Send + Sync {

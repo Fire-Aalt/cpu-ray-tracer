@@ -4,11 +4,13 @@ mod bvh_node;
 mod list;
 mod sphere;
 mod quad;
+mod constant_medium;
 
-pub use bvh_node::BVHNode;
-pub use list::HittableList;
-pub use quad::Quad;
-pub use sphere::Sphere;
+pub use bvh_node::*;
+pub use list::*;
+pub use quad::*;
+pub use sphere::*;
+pub use constant_medium::*;
 use crate::math::{dot, Interval, Ray, Vec3, AABB};
 
 #[derive(Clone, Default)]
