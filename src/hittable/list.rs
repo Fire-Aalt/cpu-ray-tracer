@@ -36,10 +36,14 @@ impl Hittable for HittableList {
         let mut closest_so_far = ray_i.max;
 
         for object in &self.objects {
-            hit_material = object.hit(ray, Interval::new(ray_i.min, closest_so_far), &mut temp_rec);
-            if hit_material.is_some() {
+            if let Some(material) = object.hit(
+                ray,
+                Interval::new(ray_i.min, closest_so_far),
+                &mut temp_rec,
+            ) {
                 closest_so_far = temp_rec.t;
-                *record = temp_rec.clone()
+                *record = temp_rec.clone();
+                hit_material = Some(material);
             }
         }
         hit_material

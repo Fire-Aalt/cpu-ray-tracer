@@ -28,6 +28,6 @@ pub fn build(scene: &mut Scene) {
     cam.background        = Color::BLACK;
 
     cam.v_fov     = 40.0;
-    cam.look_from = Vec3::new(700.0, 450.0, -500.0);
-    cam.look_at   = Vec3::new(278.0, 100.0, 0.0);
+    cam.look_from = Vec3::new(278.0, 278.0, -800.0);
+    cam.look_at   = Vec3::new(278.0, 278.0, 0.0);
 }
