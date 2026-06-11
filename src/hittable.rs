@@ -19,7 +19,6 @@ pub use quad::Quad;
 pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
-    pub material: Option<Arc<dyn Material>>,
     pub t: f32,
     pub u: f32,
     pub v: f32,
@@ -40,7 +39,7 @@ impl HitRecord {
 }
 
 pub trait Hittable: Send + Sync {
-    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material>;
     
     fn bounding_box(&self) -> AABB;
 }

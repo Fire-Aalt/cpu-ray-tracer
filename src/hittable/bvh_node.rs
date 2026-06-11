@@ -1,10 +1,10 @@
-use std::cmp::Ordering;
-use std::sync::Arc;
 use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
+use crate::material::Material;
 use crate::ray::Ray;
-use crate::utils::random_range_i32;
+use std::cmp::Ordering;
+use std::sync::Arc;
 
 pub struct BVHNode {
     left: Arc<dyn Hittable>,
@@ -72,16 +72,22 @@ impl BVHNode {
 }
 
 impl Hittable for BVHNode {
-    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material> {
         if !self.bbox.hit(ray, ray_i) { 
-            return false;
+            return None;
         }
         
         let hit_left = self.left.hit(ray, ray_i, record);
-        let new_max = if hit_left { record.t } else { ray_i.max };
+        let new_max = if hit_left.is_some() { record.t } else { ray_i.max };
         let hit_right = self.right.hit(ray, Interval::new(ray_i.min, new_max), record);
         
-        hit_left || hit_right
+        if hit_right.is_some() {
+            hit_right
+        } else if hit_left.is_some() { 
+            hit_left
+        } else { 
+            None
+        }
     }
 
     fn bounding_box(&self) -> AABB {

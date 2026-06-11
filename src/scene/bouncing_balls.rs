@@ -47,4 +47,18 @@ pub fn build(scene: &mut Scene) {
 
     let material3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
     scene.add(Arc::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3)));
+
+    let cam = &mut scene.camera;
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 720;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 32;
+
+    cam.v_fov     = 20.0;
+    cam.look_from = Vec3::new(13.0,2.0,3.0);
+    cam.look_at   = Vec3::new(0.0,0.0,0.0);
+    cam.v_up      = Vec3::new(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.6;
+    cam.focus_distance    = 10.0;
 }

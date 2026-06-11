@@ -23,4 +23,8 @@ impl Material for Metal {
         *attenuation = self.albedo;
         dot(scattered.direction(), &hit_rec.normal) > 0.0
     }
+
+    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+        Color::BLACK
+    }
 }

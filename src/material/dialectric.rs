@@ -43,4 +43,8 @@ impl Material for Dialectric {
         *scattered = Ray::new_t(hit_rec.point, direction, r_in.time());
         true
     }
+
+    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+        Color::BLACK
+    }
 }

@@ -33,4 +33,8 @@ impl Material for Lambertian {
         *attenuation = self.tex.value(hit_rec.u, hit_rec.v, &hit_rec.point);
         true
     }
+    
+    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+        Color::BLACK
+    }
 }

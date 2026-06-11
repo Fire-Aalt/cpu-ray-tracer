@@ -25,7 +25,7 @@ fn main() {
     let _client = tracy_client::Client::start();
     
     let mut scene = Scene::new();
-    build_scene(SceneId::Quads, &mut scene);
+    build_scene(SceneId::BouncingBalls, &mut scene);
     
     // This line enables BVH acceleration.
     let world = HittableList::from_one(Arc::new(BVHNode::new_root(&mut scene.world.objects)));

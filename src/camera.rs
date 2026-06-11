@@ -7,7 +7,7 @@ use crate::ray::Ray;
 use crate::vec3::{cross, Vec3};
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use std::sync::Mutex;
+use std::sync::{Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
 use crate::utils::{degrees_to_radians, random_f32};
@@ -17,6 +17,7 @@ pub struct Camera {
     pub image_width: usize,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
+    pub background_color: Color,
     pub v_fov: f32,
     pub look_from: Vec3,
     pub look_at: Vec3,
@@ -43,6 +44,7 @@ impl Default for Camera {
             image_width: 320, // Rendered image width in pixel count
             samples_per_pixel: 10, // Count of random samples for each pixel
             max_depth: 10, // Maximum number of ray bounces into scene
+            background_color: Color::new(0.70, 0.80, 1.00),
             
             v_fov: 90.0, // Vertical view angle (field of view)
             look_from: Vec3::new(0.0, 0.0, 0.0), // Point camera is looking from
@@ -196,19 +198,23 @@ impl Camera {
         
         let mut record = HitRecord::default();
         
-        if world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
-            let mut scattered = Ray::default();
-            let mut attenuation = Color::default();
-            let mat = record.material.clone().unwrap();
-
-            if mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered) { 
-                return self.ray_color(&scattered, depth - 1, world) * attenuation;
+        let mat = match world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
+            None => {
+                return self.background_color
             }
-            return Color::new(0.0, 0.0, 0.0);
+            Some(mat) => mat
+        };
+        
+        let mut scattered = Ray::default();
+        let mut attenuation = Color::default();
+        let color_from_emission = mat.emitted(record.u, record.v, &record.point);
+        
+        if !mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered) { 
+            return color_from_emission;
         }
+        
+        let color_from_scatter = self.ray_color(&scattered, depth - 1, world) * attenuation;
 
-        let unit_direction = ray.direction().unit_vector();
-        let a = 0.5 * (unit_direction.y + 1.0);
-        Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a
+        color_from_scatter + color_from_emission
     }
 }

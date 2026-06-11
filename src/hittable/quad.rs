@@ -47,18 +47,18 @@ impl Quad {
 
 
 impl Hittable for Quad {
-    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material> {
         let denominator = dot(&self.normal, ray.direction());
 
         // No hit if the ray is parallel to the plane.
         if denominator.abs() < f32::EPSILON { 
-            return false
+            return None
         }
 
         // Return false if the hit point parameter t is outside the ray interval.
         let t = (self.d - dot(&self.normal, ray.origin())) / denominator;
         if !ray_i.contains(t) { 
-            return false
+            return None
         }
 
         // Determine if the hit point lies within the planar shape using its plane coordinates.
@@ -68,16 +68,15 @@ impl Hittable for Quad {
         let beta = dot(&self.w, &cross(&self.u, &planar_hit_point));
         
         if !Self::is_interior(alpha, beta, record) {
-            return false;
+            return None
         }
         
         // Ray hits the 2D shape; set the rest of the hit record and return true.
         record.t = t;
         record.point = intersection;
         record.set_face_normal(ray, &self.normal);
-        record.material = Some(self.mat.clone());
-        
-        true
+
+        Some(self.mat.as_ref())
     }
 
     fn bounding_box(&self) -> AABB {

@@ -2,6 +2,7 @@ use std::sync::Arc;
 use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
+use crate::material::Material;
 use crate::ray::Ray;
 
 pub struct HittableList {
@@ -29,19 +30,19 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material> {
         let mut temp_rec = HitRecord::default();
-        let mut hit_anything = false;
+        let mut hit_material = None;
         let mut closest_so_far = ray_i.max;
 
         for object in &self.objects {
-            if object.hit(ray, Interval::new(ray_i.min, closest_so_far), &mut temp_rec) {
-                hit_anything = true;
+            hit_material = object.hit(ray, Interval::new(ray_i.min, closest_so_far), &mut temp_rec);
+            if hit_material.is_some() {
                 closest_so_far = temp_rec.t;
                 *record = temp_rec.clone()
             }
         }
-        hit_anything
+        hit_material
     }
 
     fn bounding_box(&self) -> AABB {
