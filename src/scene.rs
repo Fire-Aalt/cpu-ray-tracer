@@ -4,6 +4,7 @@ mod earth;
 mod quads;
 mod simple_light;
 mod cornell_box;
+mod cornell_smoke;
 
 use std::sync::Arc;
 use crate::camera::Camera;
@@ -34,6 +35,7 @@ pub enum SceneId {
     Quads,
     SimpleLight,
     CornellBox,
+    CornellSmoke,
 }
 
 pub fn build_scene(id: SceneId, scene: &mut Scene) {
@@ -44,5 +46,6 @@ pub fn build_scene(id: SceneId, scene: &mut Scene) {
         SceneId::Quads => quads::build(scene),
         SceneId::SimpleLight => simple_light::build(scene),
         SceneId::CornellBox => cornell_box::build(scene),
+        SceneId::CornellSmoke => cornell_smoke::build(scene),
     }
 }

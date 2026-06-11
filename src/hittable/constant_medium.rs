@@ -31,7 +31,7 @@ impl Hittable for ConstantMedium {
             return None
         }
 
-        if self.boundary.hit(ray, Interval::new(rec1.t + 0.0001, f32::INFINITY), &mut rec1).is_none() {
+        if self.boundary.hit(ray, Interval::new(rec1.t + 0.0001, f32::INFINITY), &mut rec2).is_none() {
             return None
         }
         
@@ -44,7 +44,7 @@ impl Hittable for ConstantMedium {
         
         let ray_length = ray.direction().length();
         let distance_inside_boundary = (rec2.t - rec1.t) * ray_length;
-        let hit_distance = self.neg_inv_density * random_f32().log10();
+        let hit_distance = self.neg_inv_density * random_f32().ln();
         
         if hit_distance > distance_inside_boundary { 
             return None
