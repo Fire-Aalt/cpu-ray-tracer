@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::sync::Arc;
 use crate::color::Color;
 use crate::image::Image;
 use crate::texture::Texture;
@@ -9,10 +10,10 @@ pub struct ImageTexture {
 }
 
 impl ImageTexture {
-    pub fn new(path: &Path) -> Self {
-        ImageTexture {
+    pub fn new(path: &Path) -> Arc<Self> {
+        Arc::new(ImageTexture {
             image: Image::new(path)
-        }
+        })
     }
 }
 

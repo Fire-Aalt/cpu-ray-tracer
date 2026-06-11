@@ -7,10 +7,10 @@ use crate::texture::CheckerTexture;
 use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
-    let checker = Arc::new(CheckerTexture::from_colors(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9)));
+    let checker = CheckerTexture::from_colors(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9));
 
-    scene.add(Sphere::new(Vec3::new(0.0,-10.0, 0.0), 10.0, Arc::new(Lambertian::from_texture(checker.clone()))));
-    scene.add(Sphere::new(Vec3::new(0.0, 10.0, 0.0), 10.0, Arc::new(Lambertian::from_texture(checker))));
+    scene.add(Sphere::new(Vec3::new(0.0,-10.0, 0.0), 10.0, Lambertian::new(checker.clone())));
+    scene.add(Sphere::new(Vec3::new(0.0, 10.0, 0.0), 10.0, Lambertian::new(checker)));
 
     scene.camera.aspect_ratio      = 16.0 / 9.0;
     scene.camera.image_width       = 400;

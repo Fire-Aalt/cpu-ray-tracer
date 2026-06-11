@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::Material;
@@ -10,8 +11,8 @@ pub struct Metal {
 }
 
 impl Metal {
-    pub fn new(albedo: Color, fuzz: f32) -> Self {
-        Metal { albedo, fuzz: if fuzz < 1.0 { fuzz } else { 1.0 } }
+    pub fn new(albedo: Color, fuzz: f32) -> Arc<Self> {
+        Arc::new(Metal { albedo, fuzz: if fuzz < 1.0 { fuzz } else { 1.0 } })
     }
 }
 

@@ -5,11 +5,10 @@ use crate::scene::Scene;
 use crate::texture::CheckerTexture;
 use crate::utils::{random_f32, random_range_f32};
 use crate::vec3::Vec3;
-use std::sync::Arc;
 
 pub fn build(scene: &mut Scene) {
 
-    let checker = Arc::new(Lambertian::from_texture(Arc::new(CheckerTexture::from_colors(0.32, Color::new(0.1, 0.1, 0.1), Color::new(0.9, 0.9, 0.9)))));
+    let checker = Lambertian::new(CheckerTexture::from_colors(0.32, Color::new(0.1, 0.1, 0.1), Color::new(0.9, 0.9, 0.9)));
     scene.add(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, checker));
 
     for a in -11..11 {
@@ -21,31 +20,31 @@ pub fn build(scene: &mut Scene) {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Vec3::random().as_color() * Vec3::random().as_color();
-                    let sphere_material = Arc::new(Lambertian::new(albedo));
+                    let sphere_material = Lambertian::from_color(albedo);
                     let center2 = center + Vec3::new(0.0, random_range_f32(0.0..0.5), 0.0);
                     scene.add(Sphere::new_dynamic(center, center2, 0.2, sphere_material));
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = Vec3::random_range(0.5..1.0).as_color();
                     let fuzz = random_range_f32(0.0..0.5);
-                    let sphere_material = Arc::new(Metal::new(albedo, fuzz));
+                    let sphere_material = Metal::new(albedo, fuzz);
                     scene.add(Sphere::new(center, 0.2, sphere_material));
                 } else {
                     // glass
-                    let sphere_material = Arc::new(Dialectric::new(1.5));
+                    let sphere_material = Dialectric::new(1.5);
                     scene.add(Sphere::new(center, 0.2, sphere_material));
                 }
             }
         }
     }
 
-    let material1 = Arc::new(Dialectric::new(1.5));
+    let material1 = Dialectric::new(1.5);
     scene.add(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, material1));
 
-    let material2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let material2 = Lambertian::from_color(Color::new(0.4, 0.2, 0.1));
     scene.add(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, material2));
 
-    let material3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
+    let material3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
     scene.add(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3));
 
     let cam = &mut scene.camera;

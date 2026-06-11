@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::{Quad, Sphere};
 use crate::material::{DiffuseLight, Lambertian};
@@ -7,11 +6,11 @@ use crate::texture::CheckerTexture;
 use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
-    let pertext = Arc::new(CheckerTexture::from_colors(1.0, Color::WHITE, Color::BLACK));
-    scene.add(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, Arc::new(Lambertian::from_texture(pertext.clone()))));
-    scene.add(Sphere::new(Vec3::new(0.0,2.0,0.0), 2.0, Arc::new(Lambertian::from_texture(pertext.clone()))));
+    let pertext = CheckerTexture::from_colors(1.0, Color::WHITE, Color::BLACK);
+    scene.add(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, Lambertian::new(pertext.clone())));
+    scene.add(Sphere::new(Vec3::new(0.0,2.0,0.0), 2.0, Lambertian::new(pertext.clone())));
 
-    let difflight = Arc::new(DiffuseLight::from_color(Color::new(4.0,4.0,4.0)));
+    let difflight = DiffuseLight::from_color(Color::new(4.0,4.0,4.0));
     scene.add(Sphere::new(Vec3::new(0.0,7.0,0.0), 2.0, difflight.clone()));
     scene.add(Quad::new(Vec3::new(3.0,1.0,-2.0), Vec3::new(2.0,0.0,0.0), Vec3::new(0.0,2.0,0.0), difflight));
 

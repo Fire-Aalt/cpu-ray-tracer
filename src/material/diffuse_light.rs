@@ -11,12 +11,12 @@ pub struct DiffuseLight {
 }
 
 impl DiffuseLight {
-    pub fn new(tex: Arc<dyn Texture>) -> Self {
-        DiffuseLight { tex }
+    pub fn new(tex: Arc<dyn Texture>) -> Arc<Self> {
+        Arc::new(DiffuseLight { tex })
     }
 
-    pub fn from_color(emit: Color) -> Self {
-        DiffuseLight { tex: Arc::new(SolidColorTexture::new(emit)) }
+    pub fn from_color(emit: Color) -> Arc<Self> {
+        Arc::new(DiffuseLight { tex: SolidColorTexture::new(emit) })
     }
 }
 

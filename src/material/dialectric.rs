@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::Material;
@@ -12,8 +13,8 @@ pub struct Dialectric {
 }
 
 impl Dialectric {
-    pub fn new(refraction_index: f32) -> Self {
-        Dialectric { refraction_index }
+    pub fn new(refraction_index: f32) -> Arc<Self> {
+        Arc::new(Dialectric { refraction_index })
     }
 
     // Use Schlick's approximation for reflectance.

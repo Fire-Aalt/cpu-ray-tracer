@@ -7,11 +7,11 @@ use crate::vec3::Vec3;
 
 pub fn build(scene: &mut Scene) {
     // Materials
-    let left_red     = Arc::new(Lambertian::new(Color::new(1.0, 0.2, 0.2)));
-    let back_green   = Arc::new(Lambertian::new(Color::new(0.2, 1.0, 0.2)));
-    let right_blue   = Arc::new(Lambertian::new(Color::new(0.2, 0.2, 1.0)));
-    let upper_orange = Arc::new(Lambertian::new(Color::new(1.0, 0.5, 0.0)));
-    let lower_teal   = Arc::new(Lambertian::new(Color::new(0.2, 0.8, 0.8)));
+    let left_red     = Lambertian::from_color(Color::new(1.0, 0.2, 0.2));
+    let back_green   = Lambertian::from_color(Color::new(0.2, 1.0, 0.2));
+    let right_blue   = Lambertian::from_color(Color::new(0.2, 0.2, 1.0));
+    let upper_orange = Lambertian::from_color(Color::new(1.0, 0.5, 0.0));
+    let lower_teal   = Lambertian::from_color(Color::new(0.2, 0.8, 0.8));
 
     // Quads
     scene.add(Quad::new(Vec3::new(-3.0,-2.0, 5.0), Vec3::new(0.0, 0.0,-4.0), Vec3::new(0.0, 4.0, 0.0), left_red));

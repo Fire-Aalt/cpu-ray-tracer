@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::color::Color;
 use crate::vec3::Vec3;
 
@@ -9,8 +10,8 @@ pub struct SolidColorTexture {
 }
 
 impl SolidColorTexture {
-    pub fn new(albedo: Color) -> Self {
-        SolidColorTexture { albedo }
+    pub fn new(albedo: Color) -> Arc<Self> {
+        Arc::new(SolidColorTexture { albedo })
     }
 }
 

@@ -10,16 +10,16 @@ pub struct CheckerTexture {
 }
 
 impl CheckerTexture {
-    pub fn new(scale: f32, even: Arc<dyn Texture>, odd: Arc<dyn Texture>) -> Self {
-        CheckerTexture {
+    pub fn new(scale: f32, even: Arc<dyn Texture>, odd: Arc<dyn Texture>) -> Arc<Self> {
+        Arc::new(CheckerTexture {
             inv_scale: 1.0 / scale,
             even,
             odd
-        }
+        })
     }
     
-    pub fn from_colors(scale: f32, even: Color, odd: Color) -> Self {
-        CheckerTexture::new(scale, Arc::new(SolidColorTexture::new(even)), Arc::new(SolidColorTexture::new(odd)))
+    pub fn from_colors(scale: f32, even: Color, odd: Color) -> Arc<Self> {
+        CheckerTexture::new(scale, SolidColorTexture::new(even), SolidColorTexture::new(odd))
     }
 }
 

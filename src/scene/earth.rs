@@ -1,14 +1,13 @@
-use std::path::Path;
-use std::sync::Arc;
 use crate::hittable::Sphere;
 use crate::material::Lambertian;
 use crate::scene::Scene;
 use crate::texture::ImageTexture;
 use crate::vec3::Vec3;
+use std::path::Path;
 
 pub fn build(scene: &mut Scene) {
-    let earth_texture = Arc::new(ImageTexture::new(Path::new("images/earthmap.jpg")));
-    let earth_surface = Arc::new(Lambertian::from_texture(earth_texture));
+    let earth_texture = ImageTexture::new(Path::new("images/earthmap.jpg"));
+    let earth_surface = Lambertian::new(earth_texture);
   
     scene.add(Sphere::new(Vec3::default(), 2.0, earth_surface));
     

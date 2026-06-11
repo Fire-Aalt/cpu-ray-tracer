@@ -33,6 +33,7 @@ pub enum SceneId {
     Earth,
     Quads,
     SimpleLight,
+    CornellBox,
 }
 
 pub fn build_scene(id: SceneId, scene: &mut Scene) {
@@ -42,5 +43,6 @@ pub fn build_scene(id: SceneId, scene: &mut Scene) {
         SceneId::Earth => earth::build(scene),
         SceneId::Quads => quads::build(scene),
         SceneId::SimpleLight => simple_light::build(scene),
+        SceneId::CornellBox => cornell_box::build(scene),
     }
 }
