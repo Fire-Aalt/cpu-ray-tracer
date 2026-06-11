@@ -2,6 +2,7 @@ mod bouncing_balls;
 mod checker_spheres;
 mod earth;
 mod quads;
+mod simple_light;
 
 use std::sync::Arc;
 use crate::camera::Camera;
@@ -30,6 +31,7 @@ pub enum SceneId {
     CheckerSpheres,
     Earth,
     Quads,
+    SimpleLight,
 }
 
 pub fn build_scene(id: SceneId, scene: &mut Scene) {
@@ -38,5 +40,6 @@ pub fn build_scene(id: SceneId, scene: &mut Scene) {
         SceneId::CheckerSpheres => checker_spheres::build(scene),
         SceneId::Earth => earth::build(scene),
         SceneId::Quads => quads::build(scene),
+        SceneId::SimpleLight => simple_light::build(scene),
     }
 }

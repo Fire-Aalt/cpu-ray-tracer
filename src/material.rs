@@ -10,6 +10,7 @@ mod diffuse_light;
 pub use dialectric::Dialectric;
 pub use lambertian::Lambertian;
 pub use metal::Metal;
+pub use diffuse_light::DiffuseLight;
 use crate::vec3::Vec3;
 
 pub trait Material: Send + Sync {

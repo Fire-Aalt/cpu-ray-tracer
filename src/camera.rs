@@ -17,7 +17,7 @@ pub struct Camera {
     pub image_width: usize,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
-    pub background_color: Color,
+    pub background: Color,
     pub v_fov: f32,
     pub look_from: Vec3,
     pub look_at: Vec3,
@@ -44,7 +44,7 @@ impl Default for Camera {
             image_width: 320, // Rendered image width in pixel count
             samples_per_pixel: 10, // Count of random samples for each pixel
             max_depth: 10, // Maximum number of ray bounces into scene
-            background_color: Color::new(0.70, 0.80, 1.00),
+            background: Color::new(0.70, 0.80, 1.00),
             
             v_fov: 90.0, // Vertical view angle (field of view)
             look_from: Vec3::new(0.0, 0.0, 0.0), // Point camera is looking from
@@ -200,7 +200,7 @@ impl Camera {
         
         let mat = match world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
             None => {
-                return self.background_color
+                return self.background
             }
             Some(mat) => mat
         };
