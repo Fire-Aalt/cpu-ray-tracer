@@ -8,10 +8,12 @@ use crate::vec3::{dot, Vec3};
 mod bvh_node;
 mod list;
 mod sphere;
+mod quad;
 
 pub use bvh_node::BVHNode;
 pub use list::HittableList;
 pub use sphere::Sphere;
+pub use quad::Quad;
 
 #[derive(Clone, Default)]
 pub struct HitRecord {

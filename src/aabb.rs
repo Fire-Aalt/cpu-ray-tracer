@@ -14,15 +14,25 @@ impl AABB {
     pub const UNIVERSE: AABB = AABB { x: Interval::UNIVERSE, y: Interval::UNIVERSE, z: Interval::UNIVERSE };
 
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        AABB { x, y, z }
+        (AABB { x, y, z }).with_min_padding()
     }
     
     pub fn from_min_max(a: Vec3, b: Vec3) -> Self {
-        AABB { // TODO: simplify
+        (AABB { // TODO: simplify
             x: if a.x <= b.x { Interval::new(a.x, b.x) } else { Interval::new(b.x, a.x) },
             y: if a.y <= b.y { Interval::new(a.y, b.y) } else { Interval::new(b.y, a.y) },
             z: if a.z <= b.z { Interval::new(a.z, b.z) } else { Interval::new(b.z, a.z) }
-        }
+        }).with_min_padding()
+    }
+    
+    fn with_min_padding(&self) -> Self {
+        const DELTA: f32 = 0.0001;
+        
+        let mut aabb = *self;
+        if aabb.x.size() < DELTA { aabb.x = aabb.x.expand(DELTA) }
+        if aabb.y.size() < DELTA { aabb.y = aabb.y.expand(DELTA) }
+        if aabb.z.size() < DELTA { aabb.z = aabb.z.expand(DELTA) }
+        aabb
     }
     
     pub fn from_combined(a: AABB, b: AABB) -> Self {
