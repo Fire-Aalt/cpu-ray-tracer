@@ -18,7 +18,7 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn new(q: Vec3, u: Vec3, v: Vec3, mat: Arc<dyn Material>) -> Self {
+    pub fn new(q: Vec3, u: Vec3, v: Vec3, mat: Arc<dyn Material>) -> Arc<Self> {
         let n = cross(&u, &v);
         let normal = n.unit_vector();
         let d = dot(&normal, &q);
@@ -27,7 +27,7 @@ impl Quad {
         let bbox_diagonal1 = AABB::from_min_max(q, q + u + v);
         let bbox_diagonal2 = AABB::from_min_max(q + u, q + v);
         
-        Quad { q, u, v, w, mat, bbox: AABB::from_combined(bbox_diagonal1, bbox_diagonal2), normal, d }
+        Arc::new(Quad { q, u, v, w, mat, bbox: AABB::from_combined(bbox_diagonal1, bbox_diagonal2), normal, d })
     }
     
     fn is_interior(a: f32, b: f32, hit_rec: &mut HitRecord) -> bool {

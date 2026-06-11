@@ -9,9 +9,8 @@ use crate::vec3::Vec3;
 pub fn build(scene: &mut Scene) {
     let earth_texture = Arc::new(ImageTexture::new(Path::new("images/earthmap.jpg")));
     let earth_surface = Arc::new(Lambertian::from_texture(earth_texture));
-    let globe = Arc::new(Sphere::new(Vec3::default(), 2.0, earth_surface));
-    
-    scene.add(globe);
+  
+    scene.add(Sphere::new(Vec3::default(), 2.0, earth_surface));
     
     scene.camera.aspect_ratio      = 16.0 / 9.0;
     scene.camera.image_width       = 400;

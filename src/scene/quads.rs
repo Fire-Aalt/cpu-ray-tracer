@@ -14,11 +14,11 @@ pub fn build(scene: &mut Scene) {
     let lower_teal   = Arc::new(Lambertian::new(Color::new(0.2, 0.8, 0.8)));
 
     // Quads
-    scene.add(Arc::new(Quad::new(Vec3::new(-3.0,-2.0, 5.0), Vec3::new(0.0, 0.0,-4.0), Vec3::new(0.0, 4.0, 0.0), left_red)));
-    scene.add(Arc::new(Quad::new(Vec3::new(-2.0,-2.0, 0.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 4.0, 0.0), back_green)));
-    scene.add(Arc::new(Quad::new(Vec3::new( 3.0,-2.0, 1.0), Vec3::new(0.0, 0.0, 4.0), Vec3::new(0.0, 4.0, 0.0), right_blue)));
-    scene.add(Arc::new(Quad::new(Vec3::new(-2.0, 3.0, 1.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 4.0), upper_orange)));
-    scene.add(Arc::new(Quad::new(Vec3::new(-2.0,-3.0, 5.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 0.0,-4.0), lower_teal)));
+    scene.add(Quad::new(Vec3::new(-3.0,-2.0, 5.0), Vec3::new(0.0, 0.0,-4.0), Vec3::new(0.0, 4.0, 0.0), left_red));
+    scene.add(Quad::new(Vec3::new(-2.0,-2.0, 0.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 4.0, 0.0), back_green));
+    scene.add(Quad::new(Vec3::new( 3.0,-2.0, 1.0), Vec3::new(0.0, 0.0, 4.0), Vec3::new(0.0, 4.0, 0.0), right_blue));
+    scene.add(Quad::new(Vec3::new(-2.0, 3.0, 1.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 4.0), upper_orange));
+    scene.add(Quad::new(Vec3::new(-2.0,-3.0, 5.0), Vec3::new(4.0, 0.0, 0.0), Vec3::new(0.0, 0.0,-4.0), lower_teal));
 
     scene.camera.aspect_ratio      = 1.0;
     scene.camera.image_width       = 400;

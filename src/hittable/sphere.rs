@@ -15,28 +15,28 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32, mat: Arc<dyn Material>) -> Self {
+    pub fn new(center: Vec3, radius: f32, mat: Arc<dyn Material>) -> Arc<Self> {
         let r_vec = Vec3::new(radius, radius, radius);
         
-        Sphere { 
+        Arc::new(Sphere {
             center: Ray::new(center, Vec3::default()), 
             radius: radius.max(0.001), 
             material: mat, 
             bbox: AABB::from_min_max(center - r_vec, center + r_vec)
-        }
+        })
     }
     
-    pub fn new_dynamic(center1: Vec3, center2: Vec3, radius: f32, mat: Arc<dyn Material>) -> Self {
+    pub fn new_dynamic(center1: Vec3, center2: Vec3, radius: f32, mat: Arc<dyn Material>) -> Arc<Self> {
         let r_vec = Vec3::new(radius, radius, radius);
         let box1 = AABB::from_min_max(center1 - r_vec, center1 + r_vec);
         let box2 = AABB::from_min_max(center2 - r_vec, center2 + r_vec);
         
-        Sphere { 
+        Arc::new(Sphere { 
             center: Ray::new(center1, center2 - center1), 
             radius: radius.max(0.001), 
             material: mat,
             bbox: AABB::from_combined(box1, box2)
-        }
+        })
     }
     
     pub fn bounding_box(&self) -> &AABB {

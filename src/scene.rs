@@ -3,6 +3,7 @@ mod checker_spheres;
 mod earth;
 mod quads;
 mod simple_light;
+mod cornell_box;
 
 use std::sync::Arc;
 use crate::camera::Camera;
