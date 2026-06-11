@@ -5,6 +5,7 @@ mod quads;
 mod simple_light;
 mod cornell_box;
 mod cornell_smoke;
+mod final_scene;
 
 use std::sync::Arc;
 use crate::camera::Camera;
@@ -36,6 +37,7 @@ pub enum SceneId {
     SimpleLight,
     CornellBox,
     CornellSmoke,
+    FinalScene,
 }
 
 pub fn build_scene(id: SceneId, scene: &mut Scene) {
@@ -47,5 +49,6 @@ pub fn build_scene(id: SceneId, scene: &mut Scene) {
         SceneId::SimpleLight => simple_light::build(scene),
         SceneId::CornellBox => cornell_box::build(scene),
         SceneId::CornellSmoke => cornell_smoke::build(scene),
+        SceneId::FinalScene => final_scene::build(scene),
     }
 }
