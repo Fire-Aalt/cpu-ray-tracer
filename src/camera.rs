@@ -24,6 +24,8 @@ pub struct Camera {
     pub focus_distance: f32,
     image_height: usize,
     pixel_samples_scale: f32,
+    sqrt_samples_per_pixel: i32,
+    recip_sqrt_samples_per_pixel: f32,
     center: Vec3,
     pixel00_loc: Vec3,
     pixel_delta_u: Vec3,
@@ -54,6 +56,8 @@ impl Default for Camera {
             
             image_height: Default::default(),
             pixel_samples_scale: Default::default(),
+            sqrt_samples_per_pixel: Default::default(),
+            recip_sqrt_samples_per_pixel: Default::default(),
             center: Default::default(),
             pixel00_loc: Default::default(),
             pixel_delta_u: Default::default(),
@@ -72,7 +76,9 @@ impl Camera {
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as usize;
         self.image_height = if self.image_height < 1 { 1 } else { self.image_height };
 
-        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f32;
+        self.sqrt_samples_per_pixel = (self.samples_per_pixel as f32).sqrt() as i32;
+        self.pixel_samples_scale = 1.0 / (self.sqrt_samples_per_pixel * self.sqrt_samples_per_pixel) as f32;
+        self.recip_sqrt_samples_per_pixel = 1.0 / (self.sqrt_samples_per_pixel as f32);
         
         self.center = self.look_from;
 
@@ -121,9 +127,12 @@ impl Camera {
                 trace_span!("scanline").in_scope(||
                     for x in 0..self.image_width {
                         let mut accumulated_color = Color::default();
-                        for _ in 0..self.samples_per_pixel {
-                            let r = self.get_ray(x as i32, y as i32);
-                            accumulated_color += self.ray_color(&r, self.max_depth, world);
+
+                        for s_j in 0..self.sqrt_samples_per_pixel {
+                            for s_i in 0..self.sqrt_samples_per_pixel {
+                                let r = self.get_ray(x as i32, y as i32, s_i, s_j);
+                                accumulated_color += self.ray_color(&r, self.max_depth, world);
+                            }
                         }
 
                         let accumulated_color = accumulated_color * self.pixel_samples_scale;
@@ -165,10 +174,10 @@ impl Camera {
         Ok(())
     }
     
-    fn get_ray(&self, i: i32, j: i32) -> Ray {
+    fn get_ray(&self, i: i32, j: i32, s_i: i32, s_j: i32) -> Ray {
         // Construct a camera ray originating from the defocus disk and directed at a randomly
         // sampled point around the pixel location i, j.
-        let offset = Self::sample_square();
+        let offset = self.sample_square_stratified(s_i, s_j);
         let pixel_sample = self.pixel00_loc
             + self.pixel_delta_u * (i as f32 + offset.x)
             + self.pixel_delta_v * (j as f32 + offset.y);
@@ -180,8 +189,14 @@ impl Camera {
         Ray::new_t(ray_origin, ray_direction, ray_time)
     }
     
-    fn sample_square() -> Vec3 {
-        Vec3::new(random_f32() - 0.5, random_f32() - 0.5, 0.0)
+    fn sample_square_stratified(&self, s_i: i32, s_j: i32) -> Vec3 {
+        // Returns the vector to a random point in the square sub-pixel specified by grid
+        // indices s_i and s_j, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
+        
+        let px = (s_i as f32 + random_f32()) * self.recip_sqrt_samples_per_pixel - 0.5;
+        let py = (s_j as f32 + random_f32()) * self.recip_sqrt_samples_per_pixel - 0.5;
+        
+        Vec3::new(px, py, 0.0)
     }
     
     fn defocus_disk_sample(&self) -> Vec3 {
