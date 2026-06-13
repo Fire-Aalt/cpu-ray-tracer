@@ -220,13 +220,17 @@ impl Camera {
         
         let mut scattered = Ray::default();
         let mut attenuation = Color::default();
+        let mut pdf_value = 0.0;
         let color_from_emission = mat.emitted(record.u, record.v, &record.point);
         
-        if !mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered) { 
+        if !mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered, &mut pdf_value) { 
             return color_from_emission;
         }
         
-        let color_from_scatter = self.ray_color(&scattered, depth - 1, world) * attenuation;
+        let scattering_pdf = mat.scattering_pdf(&ray, &record, &scattered);
+        pdf_value = scattering_pdf;
+        
+        let color_from_scatter = (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world)) / pdf_value;
 
         color_from_scatter + color_from_emission
     }

@@ -25,7 +25,7 @@ impl Dialectric {
 }
 
 impl Material for Dialectric {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
+    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
         *attenuation = Color::new(1.0, 1.0, 1.0);
         let ri = if hit_rec.front_face {1.0 / self.refraction_index} else { self.refraction_index };
         
@@ -42,9 +42,5 @@ impl Material for Dialectric {
         
         *scattered = Ray::new_t(hit_rec.point, direction, r_in.time());
         true
-    }
-
-    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Color {
-        Color::BLACK
     }
 }

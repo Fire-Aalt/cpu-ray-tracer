@@ -20,10 +20,6 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, _r_in: &Ray, _hit_rec: &mut HitRecord, _attenuation: &mut Color, _scattered: &mut Ray) -> bool {
-        false
-    }
-
     fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
         self.tex.value(u, v, p)
     }

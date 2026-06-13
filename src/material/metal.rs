@@ -16,15 +16,11 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
+    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
         let mut reflected = Vec3::reflect(r_in.direction(), &hit_rec.normal);
         reflected = reflected.unit_vector() + (Vec3::random_unit_vector() * self.fuzz);
         *scattered = Ray::new_t(hit_rec.point, reflected, r_in.time());
         *attenuation = self.albedo;
         dot(scattered.direction(), &hit_rec.normal) > 0.0
-    }
-
-    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Color {
-        Color::BLACK
     }
 }

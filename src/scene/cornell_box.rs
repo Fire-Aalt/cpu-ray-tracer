@@ -68,7 +68,7 @@ pub fn build(scene: &mut Scene) {
     let cam = &mut scene.camera;
     cam.aspect_ratio = 1.0;
     cam.image_width = 600;
-    cam.samples_per_pixel = 200;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 32;
     cam.background = Color::BLACK;
 

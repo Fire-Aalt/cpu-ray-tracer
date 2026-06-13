@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
@@ -20,13 +21,14 @@ impl Isotropic {
 }
 
 impl Material for Isotropic {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
+    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
         *scattered = Ray::new_t(hit_rec.point, Vec3::random_unit_vector(), r_in.time());
         *attenuation = self.texture.value(hit_rec.u, hit_rec.v, &hit_rec.point);
+        *pdf = 1.0 / (4.0 * PI);
         true
     }
 
-    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Color {
-        Color::BLACK
+    fn scattering_pdf(&self, r_in: &Ray, hit_rec: &HitRecord, scattered: &Ray) -> f32 {
+        1.0 / (4.0 * PI)
     }
 }

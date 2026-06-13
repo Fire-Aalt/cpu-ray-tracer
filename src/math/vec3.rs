@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use crate::color::Color;
 use crate::utils::{random_f32, random_range_f32};
 use std::fmt::Display;
@@ -21,6 +22,19 @@ impl Vec3 {
     
     pub fn random() -> Vec3 {
         Vec3::new(random_f32(), random_f32(), random_f32())
+    }
+    
+    pub fn random_cosine_direction() -> Vec3 {
+        let r1 = random_f32();
+        let r2 = random_f32();
+        let phi = 2.0 * PI * r1;
+        
+        let sqrt_r2 = r2.sqrt();
+        let x = sqrt_r2 * phi.cos();
+        let y = sqrt_r2 * phi.sin();
+        let z = (1.0 - r2).sqrt();
+        
+        Vec3::new(x, y, z)
     }
 
     pub fn random_range(range: Range<f32>) -> Vec3 {
