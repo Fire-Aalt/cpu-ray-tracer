@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 
@@ -27,18 +26,4 @@ pub trait Material: Send + Sync {
     fn emitted(&self, r_in: &Ray, hit_rec: &HitRecord, u: f32, v: f32, p: &Vec3) -> Color {
         Color::BLACK
     }
-}
-
-pub struct EmptyMaterial {
-
-}
-
-impl EmptyMaterial {
-    pub fn new() -> Arc<Self> {
-        Arc::new(Self {})
-    }
-}
-
-impl Material for EmptyMaterial {
-
 }

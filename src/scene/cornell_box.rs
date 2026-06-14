@@ -1,6 +1,6 @@
 use crate::color::Color;
 use crate::hittable::Quad;
-use crate::material::{DiffuseLight, EmptyMaterial, Lambertian};
+use crate::material::{DiffuseLight, Lambertian};
 use crate::math::{Quaternion, Transform, Vec3};
 use crate::scene::Scene;
 use crate::utils::degrees_to_radians;
@@ -11,12 +11,14 @@ pub fn build(scene: &mut Scene) {
     let green = Lambertian::from_color(Color::new(0.12, 0.45, 0.15));
     let light = DiffuseLight::from_color(Color::new(15.0, 15.0, 15.0));
 
-    scene.add_light(Quad::from_edges(
+    let ceiling_light = Quad::from_edges(
         Vec3::new(343.0, 554.0, 332.0),
         Vec3::new(-130.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, -105.0),
-        EmptyMaterial::new(),
-    ));
+        light,
+    );
+    scene.add(ceiling_light.clone());
+    scene.add_light(ceiling_light);
     scene.add(Quad::from_edges(
         Vec3::new(555.0, 0.0, 0.0),
         Vec3::new(0.0, 555.0, 0.0),

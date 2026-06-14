@@ -8,7 +8,7 @@ use std::sync::{Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
 use crate::math::{cross, Interval, Ray, Vec3};
-use crate::pdf::{CosinePDF, HittablePDF, PDF};
+use crate::pdf::{HittablePDF, PDF};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
