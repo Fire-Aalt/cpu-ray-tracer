@@ -23,7 +23,7 @@ pub trait Material: Send + Sync {
         0.0
     }
     
-    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+    fn emitted(&self, r_in: &Ray, hit_rec: &HitRecord, u: f32, v: f32, p: &Vec3) -> Color {
         Color::BLACK
     }
 }

@@ -20,7 +20,10 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Color {
+    fn emitted(&self, r_in: &Ray, hit_rec: &HitRecord, u: f32, v: f32, p: &Vec3) -> Color {
+        if !hit_rec.front_face { 
+            return Color::BLACK;
+        }
         self.tex.value(u, v, p)
     }
 }

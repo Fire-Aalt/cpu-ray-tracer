@@ -221,7 +221,7 @@ impl Camera {
         let mut scattered = Ray::default();
         let mut attenuation = Color::default();
         let mut pdf_value = 0.0;
-        let color_from_emission = mat.emitted(record.u, record.v, &record.point);
+        let color_from_emission = mat.emitted(&ray, &record, record.u, record.v, &record.point);
         
         if !mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered, &mut pdf_value) { 
             return color_from_emission;

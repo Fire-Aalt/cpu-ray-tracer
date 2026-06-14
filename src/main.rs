@@ -7,6 +7,7 @@ mod texture;
 mod scene;
 mod image;
 mod math;
+mod pdf;
 
 use crate::hittable::{BVHNode, HittableList};
 use std::sync::Arc;
