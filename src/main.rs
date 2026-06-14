@@ -27,10 +27,11 @@ fn main() {
     
     // This line enables BVH acceleration.
     let world = HittableList::from_one(Arc::new(BVHNode::new_root(&mut scene.world.objects)));
-    
+    let lights = HittableList::from_one(Arc::new(BVHNode::new_root(&mut scene.lights.objects)));
+
     let cam = &mut scene.camera;
     
     span!(Level::TRACE, "render").in_scope(|| {
-        cam.render(&world);
+        cam.render(&world, &lights);
     })
 }

@@ -14,6 +14,7 @@ use crate::hittable::{Hittable, HittableList};
 pub struct Scene {
     pub camera: Camera,
     pub world: HittableList,
+    pub lights: HittableList,
 }
 
 impl Scene {
@@ -21,11 +22,15 @@ impl Scene {
         Scene {
             camera: Camera::default(),
             world: HittableList::new(),
+            lights: HittableList::new(),
         }
     }
     
     pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
         self.world.add(hittable);
+    }
+    pub fn add_light(&mut self, light: Arc<dyn Hittable>) {
+        self.lights.add(light);
     }
 }
 

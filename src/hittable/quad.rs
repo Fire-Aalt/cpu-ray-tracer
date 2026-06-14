@@ -2,6 +2,7 @@ use crate::hittable::{HitRecord, Hittable, HittableList};
 use crate::material::Material;
 use std::sync::Arc;
 use crate::math::{cross, dot, Interval, Quaternion, Ray, Transform, Vec3, AABB};
+use crate::utils::random_f32;
 
 pub struct Quad {
     q: Vec3,
@@ -12,6 +13,7 @@ pub struct Quad {
     bbox: AABB,
     normal: Vec3,
     d: f32,
+    area: f32
 }
 
 impl Quad {
@@ -46,6 +48,7 @@ impl Quad {
             bbox: AABB::from_combined(bbox_diagonal1, bbox_diagonal2),
             normal,
             d,
+            area: n.length()
         })
     }
 
@@ -149,5 +152,22 @@ impl Hittable for Quad {
 
     fn bounding_box(&self) -> AABB {
         self.bbox
+    }
+
+    fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
+        let mut rec = HitRecord::default();
+        if self.hit(&Ray::new(*origin, *direction), Interval::new(0.001, f32::INFINITY), &mut rec).is_none() {
+            return 0.0
+        }
+        
+        let distance_squared = rec.t * rec.t * direction.length_squared();
+        let cosine = (dot(direction, &rec.normal) / direction.length()).abs();
+        
+        distance_squared / (cosine * self.area)
+    }
+    
+    fn random(&self, origin: &Vec3) -> Vec3 {
+        let p = self.q + self.u * random_f32() + self.v * random_f32();
+        p - *origin
     }
 }

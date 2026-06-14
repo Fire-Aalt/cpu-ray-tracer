@@ -8,6 +8,7 @@ use std::sync::{Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
 use crate::math::{cross, Interval, Ray, Vec3};
+use crate::pdf::{CosinePDF, HittablePDF, PDF};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
@@ -111,7 +112,7 @@ impl Camera {
         self.defocus_disk_v = self.v * defocus_radius; 
     }
     
-    pub fn render(&mut self, world: &dyn Hittable) {
+    pub fn render(&mut self, world: &dyn Hittable, lights: &dyn Hittable) {
         span!(Level::TRACE, "initialize camera").in_scope(|| {
             self.initialize();
         });
@@ -131,7 +132,7 @@ impl Camera {
                         for s_j in 0..self.sqrt_samples_per_pixel {
                             for s_i in 0..self.sqrt_samples_per_pixel {
                                 let r = self.get_ray(x as i32, y as i32, s_i, s_j);
-                                accumulated_color += self.ray_color(&r, self.max_depth, world);
+                                accumulated_color += self.ray_color(&r, self.max_depth, world, lights);
                             }
                         }
 
@@ -204,14 +205,14 @@ impl Camera {
         self.center + (self.defocus_disk_u * p.x) + (self.defocus_disk_v * p.y)
     }
     
-    fn ray_color(&self, ray: &Ray, depth: i32, world: &dyn Hittable) -> Color {
+    fn ray_color(&self, ray: &Ray, depth: i32, world: &dyn Hittable, lights: &dyn Hittable) -> Color {
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
         
-        let mut record = HitRecord::default();
+        let mut rec = HitRecord::default();
         
-        let mat = match world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut record) {
+        let mat = match world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut rec) {
             None => {
                 return self.background
             }
@@ -221,16 +222,20 @@ impl Camera {
         let mut scattered = Ray::default();
         let mut attenuation = Color::default();
         let mut pdf_value = 0.0;
-        let color_from_emission = mat.emitted(&ray, &record, record.u, record.v, &record.point);
+        let color_from_emission = mat.emitted(&ray, &rec, rec.u, rec.v, &rec.point);
         
-        if !mat.scatter(&ray, &mut record, &mut attenuation, &mut scattered, &mut pdf_value) { 
+        if !mat.scatter(&ray, &mut rec, &mut attenuation, &mut scattered, &mut pdf_value) {
             return color_from_emission;
         }
-        
-        let scattering_pdf = mat.scattering_pdf(&ray, &record, &scattered);
-        pdf_value = scattering_pdf;
-        
-        let color_from_scatter = (attenuation * scattering_pdf * self.ray_color(&scattered, depth - 1, world)) / pdf_value;
+
+        let light_pdf = HittablePDF::new(lights, rec.point);
+        scattered = Ray::new_t(rec.point, light_pdf.generate(), ray.time());
+        pdf_value = light_pdf.value(scattered.direction());
+
+        let scattering_pdf = mat.scattering_pdf(&ray, &rec, &scattered);
+
+        let sample_color = self.ray_color(&scattered, depth - 1, world, lights);
+        let color_from_scatter = (attenuation * scattering_pdf * sample_color) / pdf_value;
 
         color_from_scatter + color_from_emission
     }

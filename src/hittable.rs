@@ -25,8 +25,8 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
-        //assert!(1.0 - outward_normal.length() < 0.0001);
-        
+        debug_assert!(1.0 - outward_normal.length() < 0.0001);
+
         self.front_face = dot(ray.direction(), outward_normal) < 0.0;
         self.normal = if self.front_face {
             *outward_normal
@@ -40,4 +40,12 @@ pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material>;
     
     fn bounding_box(&self) -> AABB;
+    
+    fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
+        0.0
+    }
+    
+    fn random(&self, origin: &Vec3) -> Vec3 {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
 }
