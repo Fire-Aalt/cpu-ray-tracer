@@ -8,7 +8,7 @@ use std::sync::{Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
 use crate::math::{cross, Interval, Ray, Vec3};
-use crate::pdf::{HittablePDF, PDF};
+use crate::pdf::{CosinePDF, HittablePDF, MixturePDF, PDF};
 use crate::utils::{degrees_to_radians, random_f32};
 
 pub struct Camera {
@@ -229,8 +229,11 @@ impl Camera {
         }
 
         let light_pdf = HittablePDF::new(lights, rec.point);
-        scattered = Ray::new_t(rec.point, light_pdf.generate(), ray.time());
-        pdf_value = light_pdf.value(scattered.direction());
+        let surface_pdf = CosinePDF::new(rec.normal);
+        let mixed_pdf = MixturePDF::new(&light_pdf, &surface_pdf);
+        
+        scattered = Ray::new_t(rec.point, mixed_pdf.generate(), ray.time());
+        pdf_value = mixed_pdf.value(scattered.direction());
 
         let scattering_pdf = mat.scattering_pdf(&ray, &rec, &scattered);
 
