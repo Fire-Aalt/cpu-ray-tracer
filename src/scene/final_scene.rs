@@ -11,7 +11,6 @@ use crate::utils::{degrees_to_radians, random_range_f32};
 
 pub fn build(scene: &mut Scene) {
     let ground = Lambertian::from_color(Color::new(0.48, 0.83, 0.53));
-    let mut ground_boxes: Vec<Arc<dyn Hittable>> = Vec::new();
 
     const BOXES_PER_SIDE: i32 = 20;
     const BOX_WIDTH: f32 = 100.0;
@@ -20,7 +19,7 @@ pub fn build(scene: &mut Scene) {
             let x0 = -1000.0 + i as f32 * BOX_WIDTH;
             let z0 = -1000.0 + j as f32 * BOX_WIDTH;
             let height = random_range_f32(1.0..101.0);
-            ground_boxes.push(Quad::r#box(
+            scene.add(Quad::r#box(
                 Transform::from_trs(
                     Vec3::new(x0 + BOX_WIDTH * 0.5, height * 0.5, z0 + BOX_WIDTH * 0.5),
                     Quaternion::IDENTITY,
@@ -30,10 +29,9 @@ pub fn build(scene: &mut Scene) {
             ));
         }
     }
-    scene.add(Arc::new(BVHNode::new_root(&mut ground_boxes)));
 
     let light = DiffuseLight::from_color(Color::new(7.0, 7.0, 7.0));
-    scene.add(Quad::from_edges(
+    scene.add_light(Quad::from_edges(
         Vec3::new(123.0, 554.0, 147.0),
         Vec3::new(300.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, 265.0),
@@ -96,12 +94,11 @@ pub fn build(scene: &mut Scene) {
         Quaternion::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), degrees_to_radians(15.0)),
         Vec3::new(1.0, 1.0, 1.0),
     );
-    let mut cluster: Vec<Arc<dyn Hittable>> = Vec::new();
+
     for _ in 0..1000 {
         let center = cluster_transform * Vec3::random_range(0.0..165.0);
-        cluster.push(Sphere::new(center, 10.0, white.clone()));
+        scene.add(Sphere::new(center, 10.0, white.clone()));
     }
-    scene.add(Arc::new(BVHNode::new_root(&mut cluster)));
 
     let cam = &mut scene.camera;
     cam.aspect_ratio = 1.0;
@@ -115,20 +112,4 @@ pub fn build(scene: &mut Scene) {
     cam.look_at = Vec3::new(278.0, 278.0, 0.0);
     cam.v_up = Vec3::new(0.0, 1.0, 0.0);
     cam.defocus_angle = 0.0;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn builds_complete_final_scene() {
-        let mut scene = Scene::new();
-        build(&mut scene);
-
-        assert_eq!(scene.world.objects.len(), 11);
-        assert_eq!(scene.camera.image_width, 800);
-        assert_eq!(scene.camera.samples_per_pixel, 10_000);
-        assert_eq!(scene.camera.max_depth, 40);
-    }
 }

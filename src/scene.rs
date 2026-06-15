@@ -8,8 +8,9 @@ mod quads;
 mod simple_light;
 
 use crate::camera::Camera;
-use crate::hittable::{Hittable, HittableList};
+use crate::hittable::{Hittable, HittableList, Sphere};
 use std::sync::Arc;
+use crate::math::Vec3;
 
 pub struct Scene {
     pub camera: Camera,
@@ -29,8 +30,10 @@ impl Scene {
     pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
         self.world.add(hittable);
     }
+    
     pub fn add_light(&mut self, light: Arc<dyn Hittable>) {
-        self.lights.add(light);
+        self.lights.add(light.clone());
+        self.world.add(light);
     }
 }
 
