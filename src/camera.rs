@@ -2,14 +2,14 @@ use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
 use crate::material::ScatterRecord;
 use crate::math::{Interval, Ray, Vec3, cross};
-use crate::pdf::{CosinePDF, HittablePDF, MixturePDF, PDF};
+use crate::pdf::{HittablePDF, MixturePDF, PDF};
 use crate::utils::{degrees_to_radians, random_f32};
 use rayon::iter::IndexedParallelIterator;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::ParallelSliceMut;
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use tracing::{Level, span, trace_span};
 
 pub struct Camera {
@@ -75,6 +75,32 @@ impl Default for Camera {
 
 impl Camera {
     fn initialize(&mut self) {
+        assert!(self.image_width > 0, "image width must be positive");
+        assert!(
+            self.samples_per_pixel > 0,
+            "samples per pixel must be positive"
+        );
+        assert!(
+            self.aspect_ratio.is_finite() && self.aspect_ratio > 0.0,
+            "aspect ratio must be finite and positive"
+        );
+        assert!(
+            self.focus_distance.is_finite() && self.focus_distance > 0.0,
+            "focus distance must be finite and positive"
+        );
+        assert!(
+            self.v_fov.is_finite() && self.v_fov > 0.0 && self.v_fov < 180.0,
+            "vertical field of view must be between 0 and 180 degrees"
+        );
+        assert!(
+            self.defocus_angle.is_finite() && self.defocus_angle >= 0.0,
+            "defocus angle must be finite and non-negative"
+        );
+        assert!(
+            self.look_from.is_finite() && self.look_at.is_finite() && self.v_up.is_finite(),
+            "camera vectors must be finite"
+        );
+
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as usize;
         self.image_height = if self.image_height < 1 {
             1
@@ -96,8 +122,12 @@ impl Camera {
         let viewport_width = viewport_height * (self.image_width as f32 / self.image_height as f32);
 
         // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
-        self.w = (self.look_from - self.look_at).unit_vector();
-        self.u = cross(&self.v_up, &self.w).unit_vector();
+        self.w = (self.look_from - self.look_at)
+            .try_unit_vector()
+            .expect("look_from and look_at must be different");
+        self.u = cross(&self.v_up, &self.w)
+            .try_unit_vector()
+            .expect("camera up vector must not be parallel to the view direction");
         self.v = cross(&self.w, &self.u);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
@@ -145,7 +175,8 @@ impl Camera {
                             }
                         }
 
-                        let accumulated_color = accumulated_color * self.pixel_samples_scale;
+                        let accumulated_color =
+                            (accumulated_color * self.pixel_samples_scale).finite_or_black();
                         let rgb = accumulated_color.fmt();
                         row[x * 3] = rgb.0;
                         row[x * 3 + 1] = rgb.1;
@@ -228,43 +259,166 @@ impl Camera {
         lights: &dyn Hittable,
     ) -> Color {
         if depth <= 0 {
-            return Color::new(0.0, 0.0, 0.0);
+            return Color::BLACK;
+        }
+
+        if !ray.origin().is_finite() || !ray.direction().is_finite() || ray.direction().near_zero()
+        {
+            return Color::BLACK;
         }
 
         let mut rec = HitRecord::default();
 
         let mat = match world.hit(ray, Interval::new(0.001, f32::INFINITY), &mut rec) {
-            None => return self.background,
+            None => return self.background.finite_or_black(),
             Some(mat) => mat,
         };
+        if !rec.point.is_finite()
+            || !rec.normal.is_finite()
+            || rec.normal.try_unit_vector().is_none()
+            || !rec.t.is_finite()
+            || !rec.u.is_finite()
+            || !rec.v.is_finite()
+        {
+            return Color::BLACK;
+        }
 
         let mut scatter_rec = ScatterRecord::default();
-        let color_from_emission = mat.emitted(&ray, &rec, rec.u, rec.v, &rec.point);
+        let color_from_emission = mat
+            .emitted(ray, &rec, rec.u, rec.v, &rec.point)
+            .finite_or_black();
 
-        if !mat.scatter(&ray, &rec, &mut scatter_rec) {
+        if !mat.scatter(ray, &rec, &mut scatter_rec) {
+            return color_from_emission;
+        }
+        if !scatter_rec.attenuation.is_finite() {
             return color_from_emission;
         }
 
         let surface_pdf = match scatter_rec.pdf {
             None => {
-                return scatter_rec.attenuation
+                if !scatter_rec.skip_pdf_ray.origin().is_finite()
+                    || !scatter_rec.skip_pdf_ray.direction().is_finite()
+                    || scatter_rec.skip_pdf_ray.direction().near_zero()
+                {
+                    return color_from_emission;
+                }
+                let color_from_scatter = scatter_rec.attenuation
                     * self.ray_color(&scatter_rec.skip_pdf_ray, depth - 1, world, lights);
+                return if color_from_scatter.is_finite() {
+                    (color_from_emission + color_from_scatter).finite_or_black()
+                } else {
+                    color_from_emission
+                };
             }
             Some(pdf) => pdf,
         };
 
-        let light_pdf = HittablePDF::new(lights, rec.point);
-        let mixed_pdf = MixturePDF::new(&light_pdf, surface_pdf.as_ref());
+        let (direction, pdf_value) = if lights.can_sample() {
+            let light_pdf = HittablePDF::new(lights, rec.point);
+            let mixed_pdf = MixturePDF::new(&light_pdf, surface_pdf.as_ref());
+            let direction = mixed_pdf.generate();
+            let pdf_value = mixed_pdf.value(&direction);
+            (direction, pdf_value)
+        } else {
+            let direction = surface_pdf.generate();
+            let pdf_value = surface_pdf.value(&direction);
+            (direction, pdf_value)
+        };
+        if !direction.is_finite() || direction.near_zero() {
+            return color_from_emission;
+        }
+        if !pdf_value.is_finite() || pdf_value <= f32::MIN_POSITIVE {
+            return color_from_emission;
+        }
 
-        let scattered = Ray::new_t(rec.point, mixed_pdf.generate(), ray.time());
-        let pdf_value = mixed_pdf.value(scattered.direction());
+        let scattered = Ray::new_t(rec.point, direction, ray.time());
 
-        let scattering_pdf = mat.scattering_pdf(&ray, &rec, &scattered);
+        let scattering_pdf = mat.scattering_pdf(ray, &rec, &scattered);
+        if !scattering_pdf.is_finite() || scattering_pdf <= 0.0 {
+            return color_from_emission;
+        }
 
         let sample_color = self.ray_color(&scattered, depth - 1, world, lights);
         let color_from_scatter =
             (scatter_rec.attenuation * scattering_pdf * sample_color) / pdf_value;
 
-        color_from_scatter + color_from_emission
+        if color_from_scatter.is_finite() {
+            (color_from_scatter + color_from_emission).finite_or_black()
+        } else {
+            color_from_emission
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::math::AABB;
+    use std::sync::Arc;
+
+    struct ZeroPDF;
+
+    impl PDF for ZeroPDF {
+        fn value(&self, _direction: &Vec3) -> f32 {
+            0.0
+        }
+
+        fn generate(&self) -> Vec3 {
+            Vec3::default()
+        }
+    }
+
+    struct EmissiveBadScatter;
+
+    impl crate::material::Material for EmissiveBadScatter {
+        fn scatter(
+            &self,
+            _r_in: &Ray,
+            _hit_rec: &HitRecord,
+            scatter_rec: &mut ScatterRecord,
+        ) -> bool {
+            scatter_rec.attenuation = Color::WHITE;
+            scatter_rec.pdf = Some(Arc::new(ZeroPDF));
+            true
+        }
+
+        fn emitted(&self, _r_in: &Ray, _hit_rec: &HitRecord, _u: f32, _v: f32, _p: &Vec3) -> Color {
+            Color::WHITE
+        }
+    }
+
+    struct AlwaysHit(EmissiveBadScatter);
+
+    impl Hittable for AlwaysHit {
+        fn hit(
+            &self,
+            _ray: &Ray,
+            _ray_i: Interval,
+            record: &mut HitRecord,
+        ) -> Option<&dyn crate::material::Material> {
+            record.point = Vec3::new(0.0, 0.0, -1.0);
+            record.normal = Vec3::new(0.0, 0.0, 1.0);
+            record.t = 1.0;
+            record.front_face = true;
+            Some(&self.0)
+        }
+
+        fn bounding_box(&self) -> AABB {
+            AABB::UNIVERSE
+        }
+    }
+
+    #[test]
+    fn invalid_scatter_sample_keeps_finite_emission() {
+        let camera = Camera::default();
+        let world = AlwaysHit(EmissiveBadScatter);
+        let lights = crate::hittable::HittableList::new();
+        let ray = Ray::new(Vec3::default(), Vec3::new(0.0, 0.0, -1.0));
+
+        let color = camera.ray_color(&ray, 2, &world, &lights);
+
+        assert!(color.is_finite());
+        assert_eq!((color.r, color.g, color.b), (1.0, 1.0, 1.0));
     }
 }

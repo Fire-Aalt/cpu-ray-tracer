@@ -14,6 +14,10 @@ pub struct ConstantMedium {
 /// Only works for convex boundaries.
 impl ConstantMedium {
     pub fn new(boundary: Arc<dyn Hittable>, density: f32, texture: Arc<dyn Texture>) -> Arc<Self> {
+        assert!(
+            density.is_finite() && density > 0.0,
+            "medium density must be finite and positive"
+        );
         Arc::new(ConstantMedium {
             boundary,
             neg_inv_density: -1.0 / density,
@@ -54,13 +58,20 @@ impl Hittable for ConstantMedium {
             rec2.t = ray_i.max
         }
 
+        if rec1.t >= rec2.t {
+            return None;
+        }
+
         if rec1.t < 0.0 {
             rec1.t = 0.0;
         }
 
         let ray_length = ray.direction().length();
+        if !ray_length.is_finite() || ray_length <= f32::MIN_POSITIVE {
+            return None;
+        }
         let distance_inside_boundary = (rec2.t - rec1.t) * ray_length;
-        let hit_distance = self.neg_inv_density * random_f32().ln();
+        let hit_distance = self.neg_inv_density * random_f32().max(f32::MIN_POSITIVE).ln();
 
         if hit_distance > distance_inside_boundary {
             return None;

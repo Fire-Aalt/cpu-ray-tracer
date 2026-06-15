@@ -32,9 +32,19 @@ impl Quad {
 
     fn from_world_edges(q: Vec3, u: Vec3, v: Vec3, mat: Arc<dyn Material>) -> Arc<Self> {
         let n = cross(&u, &v);
-        let normal = n.unit_vector();
+        let area_squared = dot(&n, &n);
+        assert!(
+            q.is_finite()
+                && u.is_finite()
+                && v.is_finite()
+                && area_squared.is_finite()
+                && area_squared > f32::MIN_POSITIVE,
+            "quad edges must define a finite, non-degenerate surface"
+        );
+        let area = area_squared.sqrt();
+        let normal = n / area;
         let d = dot(&normal, &q);
-        let w = n / dot(&n, &n);
+        let w = n / area_squared;
 
         let bbox_diagonal1 = AABB::from_min_max(q, q + u + v);
         let bbox_diagonal2 = AABB::from_min_max(q + u, q + v);
@@ -48,7 +58,7 @@ impl Quad {
             bbox: AABB::from_combined(bbox_diagonal1, bbox_diagonal2),
             normal,
             d,
-            area: n.length(),
+            area,
         })
     }
 
@@ -155,6 +165,14 @@ impl Hittable for Quad {
     }
 
     fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
+        let direction_length_squared = direction.length_squared();
+        if !origin.is_finite()
+            || !direction_length_squared.is_finite()
+            || direction_length_squared <= f32::MIN_POSITIVE
+        {
+            return 0.0;
+        }
+
         let mut rec = HitRecord::default();
         if self
             .hit(
@@ -167,14 +185,26 @@ impl Hittable for Quad {
             return 0.0;
         }
 
-        let distance_squared = rec.t * rec.t * direction.length_squared();
-        let cosine = (dot(direction, &rec.normal) / direction.length()).abs();
+        let distance_squared = rec.t * rec.t * direction_length_squared;
+        let cosine = (dot(direction, &rec.normal) / direction_length_squared.sqrt()).abs();
+        let denominator = cosine * self.area;
+        if !distance_squared.is_finite()
+            || !denominator.is_finite()
+            || denominator <= f32::MIN_POSITIVE
+        {
+            return 0.0;
+        }
 
-        distance_squared / (cosine * self.area)
+        let pdf = distance_squared / denominator;
+        if pdf.is_finite() { pdf } else { 0.0 }
     }
 
     fn random(&self, origin: &Vec3) -> Vec3 {
         let p = self.q + self.u * random_f32() + self.v * random_f32();
         p - *origin
+    }
+
+    fn can_sample(&self) -> bool {
+        true
     }
 }

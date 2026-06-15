@@ -20,8 +20,15 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_record: &mut ScatterRecord) -> bool {
-        let mut reflected = Vec3::reflect(r_in.direction(), &hit_rec.normal);
-        reflected = reflected.unit_vector() + (Vec3::random_unit_vector() * self.fuzz);
+        let Some(unit_direction) = r_in.direction().try_unit_vector() else {
+            return false;
+        };
+        let reflected = Vec3::reflect(&unit_direction, &hit_rec.normal)
+            + (Vec3::random_unit_vector() * self.fuzz);
+
+        if !reflected.is_finite() || reflected.near_zero() {
+            return false;
+        }
 
         scatter_record.attenuation = self.albedo;
         scatter_record.pdf = None;

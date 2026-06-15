@@ -13,6 +13,10 @@ pub struct Dialectric {
 
 impl Dialectric {
     pub fn new(refraction_index: f32) -> Arc<Self> {
+        assert!(
+            refraction_index.is_finite() && refraction_index > 0.0,
+            "refraction index must be finite and positive"
+        );
         Arc::new(Dialectric { refraction_index })
     }
 
@@ -34,9 +38,11 @@ impl Material for Dialectric {
             self.refraction_index
         };
 
-        let unit_direction = r_in.direction().unit_vector();
-        let cos_theta = dot(&(-unit_direction), &hit_rec.normal).min(1.0);
-        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        let Some(unit_direction) = r_in.direction().try_unit_vector() else {
+            return false;
+        };
+        let cos_theta = dot(&(-unit_direction), &hit_rec.normal).clamp(0.0, 1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).max(0.0).sqrt();
 
         let cannot_refract = ri * sin_theta > 1.0;
         let direction = if cannot_refract || Dialectric::reflectance(cos_theta, ri) > random_f32() {

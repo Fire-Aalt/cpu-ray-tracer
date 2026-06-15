@@ -20,6 +20,19 @@ impl Vec3 {
         *self / self.length()
     }
 
+    pub fn try_unit_vector(&self) -> Option<Vec3> {
+        let length_squared = self.length_squared();
+        if !length_squared.is_finite() || length_squared <= f32::MIN_POSITIVE {
+            return None;
+        }
+
+        Some(*self / length_squared.sqrt())
+    }
+
+    pub fn is_finite(&self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
+    }
+
     pub fn random() -> Vec3 {
         Vec3::new(random_f32(), random_f32(), random_f32())
     }
@@ -85,7 +98,7 @@ impl Vec3 {
     pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
         let cos_theta = dot(&(-*uv), n).min(1.0);
         let r_out_perp = (*uv + *n * cos_theta) * etai_over_etat;
-        let r_out_parallel = *n * -(1.0 - r_out_perp.length_squared()).abs().sqrt();
+        let r_out_parallel = *n * -(1.0 - r_out_perp.length_squared()).max(0.0).sqrt();
         r_out_perp + r_out_parallel
     }
 

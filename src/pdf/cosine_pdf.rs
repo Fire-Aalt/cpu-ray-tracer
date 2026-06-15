@@ -14,7 +14,10 @@ impl CosinePDF {
 
 impl PDF for CosinePDF {
     fn value(&self, direction: &Vec3) -> f32 {
-        let cosine_theta = dot(&direction.unit_vector(), &self.uvw.w);
+        let Some(unit_direction) = direction.try_unit_vector() else {
+            return 0.0;
+        };
+        let cosine_theta = dot(&unit_direction, &self.uvw.w);
         (cosine_theta / PI).max(0.0)
     }
 

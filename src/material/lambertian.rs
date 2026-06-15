@@ -31,7 +31,10 @@ impl Material for Lambertian {
     }
 
     fn scattering_pdf(&self, r_in: &Ray, hit_rec: &HitRecord, scattered: &Ray) -> f32 {
-        let cos_theta = dot(&hit_rec.normal, &scattered.direction().unit_vector());
+        let Some(unit_direction) = scattered.direction().try_unit_vector() else {
+            return 0.0;
+        };
+        let cos_theta = dot(&hit_rec.normal, &unit_direction);
         if cos_theta < 0.0 { 0.0 } else { cos_theta / PI }
     }
 }

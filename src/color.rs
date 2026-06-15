@@ -25,19 +25,27 @@ impl Color {
         Color { r, g, b }
     }
 
+    pub fn is_finite(&self) -> bool {
+        self.r.is_finite() && self.g.is_finite() && self.b.is_finite()
+    }
+
+    pub fn finite_or_black(self) -> Self {
+        if self.is_finite() { self } else { Self::BLACK }
+    }
+
     pub fn fmt(&self) -> (u8, u8, u8) {
         let mut r = self.r;
         let mut g = self.g;
         let mut b = self.b;
 
-        // Replace NaN components with zero.
-        if r.is_nan() {
+        // Non-finite radiance is never a valid display value.
+        if !r.is_finite() {
             r = 0.0
         };
-        if g.is_nan() {
+        if !g.is_finite() {
             g = 0.0
         };
-        if b.is_nan() {
+        if !b.is_finite() {
             b = 0.0
         };
 
@@ -177,4 +185,17 @@ fn linear_to_gamma(linear_component: f32) -> f32 {
         return linear_component.sqrt();
     }
     0.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn non_finite_components_do_not_become_white_pixels() {
+        assert_eq!(
+            Color::new(f32::INFINITY, f32::NEG_INFINITY, f32::NAN).fmt(),
+            (0, 0, 0)
+        );
+    }
 }
