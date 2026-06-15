@@ -83,7 +83,11 @@ pub fn build(scene: &mut Scene) {
     scene.add(Sphere::new(
         Vec3::new(220.0, 280.0, 300.0),
         80.0,
-        Lambertian::new(CheckerTexture::from_colors(25.0, Color::BLACK, Color::WHITE)),
+        Lambertian::new(CheckerTexture::from_colors(
+            25.0,
+            Color::BLACK,
+            Color::WHITE,
+        )),
     ));
 
     let white = Lambertian::from_color(Color::new(0.73, 0.73, 0.73));

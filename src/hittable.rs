@@ -1,17 +1,17 @@
 use crate::material::Material;
 
 mod bvh_node;
-mod list;
-mod sphere;
-mod quad;
 mod constant_medium;
+mod list;
+mod quad;
+mod sphere;
 
+use crate::math::{AABB, Interval, Ray, Vec3, dot};
 pub use bvh_node::*;
+pub use constant_medium::*;
 pub use list::*;
 pub use quad::*;
 pub use sphere::*;
-pub use constant_medium::*;
-use crate::math::{dot, Interval, Ray, Vec3, AABB};
 
 #[derive(Clone, Default)]
 pub struct HitRecord {
@@ -20,7 +20,7 @@ pub struct HitRecord {
     pub t: f32,
     pub u: f32,
     pub v: f32,
-    pub front_face: bool
+    pub front_face: bool,
 }
 
 impl HitRecord {
@@ -38,13 +38,13 @@ impl HitRecord {
 
 pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material>;
-    
+
     fn bounding_box(&self) -> AABB;
-    
+
     fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
         0.0
     }
-    
+
     fn random(&self, origin: &Vec3) -> Vec3 {
         Vec3::new(1.0, 0.0, 0.0)
     }

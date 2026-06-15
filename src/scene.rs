@@ -1,15 +1,15 @@
 mod bouncing_balls;
 mod checker_spheres;
-mod earth;
-mod quads;
-mod simple_light;
 mod cornell_box;
 mod cornell_smoke;
+mod earth;
 mod final_scene;
+mod quads;
+mod simple_light;
 
-use std::sync::Arc;
 use crate::camera::Camera;
 use crate::hittable::{Hittable, HittableList};
+use std::sync::Arc;
 
 pub struct Scene {
     pub camera: Camera,
@@ -25,7 +25,7 @@ impl Scene {
             lights: HittableList::new(),
         }
     }
-    
+
     pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
         self.world.add(hittable);
     }

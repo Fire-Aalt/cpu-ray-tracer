@@ -1,21 +1,21 @@
-use std::f32::consts::PI;
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::{Material, ScatterRecord};
 use crate::math::{Ray, Vec3};
 use crate::pdf::{CosinePDF, SpherePDF};
 use crate::texture::{SolidColorTexture, Texture};
+use std::f32::consts::PI;
+use std::sync::Arc;
 
 pub struct Isotropic {
-    texture: Arc<dyn Texture>
+    texture: Arc<dyn Texture>,
 }
 
 impl Isotropic {
     pub fn new(texture: Arc<dyn Texture>) -> Arc<Self> {
         Arc::new(Isotropic { texture })
     }
-    
+
     pub fn from_color(color: Color) -> Arc<Self> {
         Self::new(SolidColorTexture::new(color))
     }

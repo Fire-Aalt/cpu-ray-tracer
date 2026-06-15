@@ -1,16 +1,14 @@
-use std::f32::consts::PI;
-use crate::math::{dot, Vec3, ONB};
+use crate::math::{ONB, Vec3, dot};
 use crate::pdf::PDF;
+use std::f32::consts::PI;
 
 pub struct CosinePDF {
-    uvw: ONB
+    uvw: ONB,
 }
 
 impl CosinePDF {
     pub fn new(w: Vec3) -> Self {
-        CosinePDF {
-            uvw: ONB::new(w)
-        }
+        CosinePDF { uvw: ONB::new(w) }
     }
 }
 

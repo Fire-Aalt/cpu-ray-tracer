@@ -1,42 +1,47 @@
 use crate::hittable::{HitRecord, Hittable};
 use crate::material::Material;
+use crate::math::{AABB, Interval, ONB, Ray, Vec3, dot};
+use crate::utils::random_f32;
 use std::f32::consts::PI;
 use std::sync::Arc;
-use crate::math::{dot, Interval, Ray, Vec3, AABB, ONB};
-use crate::utils::random_f32;
 
 pub struct Sphere {
     center: Ray,
     radius: f32,
     material: Arc<dyn Material>,
-    bbox: AABB
+    bbox: AABB,
 }
 
 impl Sphere {
     pub fn new(center: Vec3, radius: f32, mat: Arc<dyn Material>) -> Arc<Self> {
         let r_vec = Vec3::new(radius, radius, radius);
-        
+
         Arc::new(Sphere {
-            center: Ray::new(center, Vec3::default()), 
-            radius: radius.max(0.001), 
-            material: mat, 
-            bbox: AABB::from_min_max(center - r_vec, center + r_vec)
+            center: Ray::new(center, Vec3::default()),
+            radius: radius.max(0.001),
+            material: mat,
+            bbox: AABB::from_min_max(center - r_vec, center + r_vec),
         })
     }
-    
-    pub fn new_dynamic(center1: Vec3, center2: Vec3, radius: f32, mat: Arc<dyn Material>) -> Arc<Self> {
+
+    pub fn new_dynamic(
+        center1: Vec3,
+        center2: Vec3,
+        radius: f32,
+        mat: Arc<dyn Material>,
+    ) -> Arc<Self> {
         let r_vec = Vec3::new(radius, radius, radius);
         let box1 = AABB::from_min_max(center1 - r_vec, center1 + r_vec);
         let box2 = AABB::from_min_max(center2 - r_vec, center2 + r_vec);
-        
-        Arc::new(Sphere { 
-            center: Ray::new(center1, center2 - center1), 
-            radius: radius.max(0.001), 
+
+        Arc::new(Sphere {
+            center: Ray::new(center1, center2 - center1),
+            radius: radius.max(0.001),
             material: mat,
-            bbox: AABB::from_combined(box1, box2)
+            bbox: AABB::from_combined(box1, box2),
         })
     }
-    
+
     pub fn bounding_box(&self) -> &AABB {
         &self.bbox
     }
@@ -48,23 +53,23 @@ impl Sphere {
         //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
         //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
         //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
-        
+
         let theta = (-point.y).acos();
         let phi = (-point.z).atan2(point.x) + PI;
-        
+
         *u = phi / (2.0 * PI);
         *v = theta / PI;
     }
-    
+
     fn random_to_sphere(radius: f32, distance_squared: f32) -> Vec3 {
         let r1 = random_f32();
         let r2 = random_f32();
         let z = 1.0 + r2 * ((1.0 - radius * radius / distance_squared).sqrt() - 1.0);
-        
+
         let phi = 2.0 * PI * r1;
         let x = phi.cos() * (1.0 - z * z).sqrt();
         let y = phi.sin() * (1.0 - z * z).sqrt();
-        
+
         Vec3::new(x, y, z)
     }
 }
@@ -73,31 +78,31 @@ impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, ray_i: Interval, record: &mut HitRecord) -> Option<&dyn Material> {
         let current_center = self.center.at(ray.time());
         let oc = current_center - *ray.origin();
-        
+
         let a = ray.direction().length_squared();
         let h = dot(ray.direction(), &oc);
         let c = oc.length_squared() - self.radius * self.radius;
 
         let discriminant = h * h - a * c;
         if discriminant < 0.0 {
-            return None
+            return None;
         }
-        
+
         let sqrt_d = discriminant.sqrt();
         let mut root = (h - sqrt_d) / a;
         if !ray_i.surrounds(root) {
             root = (h + sqrt_d) / a;
             if !ray_i.surrounds(root) {
-                return None
+                return None;
             }
         }
-        
+
         record.t = root;
         record.point = ray.at(root);
         let outward_normal = (record.point - current_center) / self.radius;
         record.set_face_normal(ray, &outward_normal);
         Self::get_sphere_uv(&outward_normal, &mut record.u, &mut record.v);
-        
+
         Some(self.material.as_ref())
     }
 
@@ -108,17 +113,24 @@ impl Hittable for Sphere {
     /// This method only works for stationary spheres.
     fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
         let mut rec = HitRecord::default();
-        if self.hit(&Ray::new(*origin, *direction), Interval::new(0.001, f32::INFINITY), &mut rec).is_none() {
-            return 0.0
+        if self
+            .hit(
+                &Ray::new(*origin, *direction),
+                Interval::new(0.001, f32::INFINITY),
+                &mut rec,
+            )
+            .is_none()
+        {
+            return 0.0;
         }
 
         let distance_squared = (self.center.at(0.0) - *origin).length_squared();
         let cos_theta_max = (1.0 - self.radius * self.radius / distance_squared).sqrt();
         let solid_angle = 2.0 * PI * (1.0 - cos_theta_max);
-        
+
         1.0 / solid_angle
     }
-    
+
     fn random(&self, origin: &Vec3) -> Vec3 {
         let direction = self.center.at(0.0) - *origin;
         let distance_squared = direction.length_squared();

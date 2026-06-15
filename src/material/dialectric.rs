@@ -1,9 +1,9 @@
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::{Material, ScatterRecord};
-use crate::math::{dot, Ray, Vec3};
+use crate::math::{Ray, Vec3, dot};
 use crate::utils::random_f32;
+use std::sync::Arc;
 
 pub struct Dialectric {
     // Refractive index in vacuum or air, or the ratio of the material's refractive index over
@@ -28,19 +28,23 @@ impl Material for Dialectric {
     fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_record: &mut ScatterRecord) -> bool {
         scatter_record.attenuation = Color::WHITE;
         scatter_record.pdf = None;
-        let ri = if hit_rec.front_face {1.0 / self.refraction_index} else { self.refraction_index };
-        
+        let ri = if hit_rec.front_face {
+            1.0 / self.refraction_index
+        } else {
+            self.refraction_index
+        };
+
         let unit_direction = r_in.direction().unit_vector();
         let cos_theta = dot(&(-unit_direction), &hit_rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-        
+
         let cannot_refract = ri * sin_theta > 1.0;
         let direction = if cannot_refract || Dialectric::reflectance(cos_theta, ri) > random_f32() {
             Vec3::reflect(&unit_direction, &hit_rec.normal)
         } else {
             Vec3::refract(&unit_direction, &hit_rec.normal, ri)
         };
-        
+
         scatter_record.skip_pdf_ray = Ray::new_t(hit_rec.point, direction, r_in.time());
         true
     }

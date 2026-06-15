@@ -1,28 +1,34 @@
-use std::sync::Arc;
 use crate::hittable::{HitRecord, Hittable};
 use crate::material::Material;
-use crate::math::{Interval, Ray, Vec3, AABB};
+use crate::math::{AABB, Interval, Ray, Vec3};
 use crate::utils::random_range_i32;
+use std::sync::Arc;
 
 pub struct HittableList {
     pub objects: Vec<Arc<dyn Hittable>>,
-    bbox: AABB
+    bbox: AABB,
 }
 
 impl HittableList {
     pub fn new() -> Self {
-        HittableList { objects: vec![], bbox: AABB::default() }
+        HittableList {
+            objects: vec![],
+            bbox: AABB::default(),
+        }
     }
 
     pub fn from_one(object: Arc<dyn Hittable>) -> Self {
-        HittableList { bbox: object.bounding_box(), objects: vec![object] }
+        HittableList {
+            bbox: object.bounding_box(),
+            objects: vec![object],
+        }
     }
-    
+
     pub fn add(&mut self, object: Arc<dyn Hittable>) {
         self.bbox = AABB::from_combined(self.bbox, object.bounding_box());
         self.objects.push(object);
     }
-    
+
     pub fn clear(&mut self) {
         self.objects.clear();
     }
@@ -35,11 +41,9 @@ impl Hittable for HittableList {
         let mut closest_so_far = ray_i.max;
 
         for object in &self.objects {
-            if let Some(material) = object.hit(
-                ray,
-                Interval::new(ray_i.min, closest_so_far),
-                &mut temp_rec,
-            ) {
+            if let Some(material) =
+                object.hit(ray, Interval::new(ray_i.min, closest_so_far), &mut temp_rec)
+            {
                 closest_so_far = temp_rec.t;
                 *record = temp_rec.clone();
                 hit_material = Some(material);

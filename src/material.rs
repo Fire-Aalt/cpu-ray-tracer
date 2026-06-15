@@ -1,20 +1,20 @@
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
+use std::sync::Arc;
 
 mod dialectric;
-mod lambertian;
-mod metal;
 mod diffuse_light;
 mod isotropic;
+mod lambertian;
+mod metal;
 
-pub use dialectric::*;
-pub use lambertian::*;
-pub use metal::*;
-pub use diffuse_light::*;
-pub use isotropic::*;
 use crate::math::{Ray, Vec3};
 use crate::pdf::PDF;
+pub use dialectric::*;
+pub use diffuse_light::*;
+pub use isotropic::*;
+pub use lambertian::*;
+pub use metal::*;
 
 #[derive(Default)]
 pub struct ScatterRecord {
@@ -31,7 +31,7 @@ pub trait Material: Send + Sync {
     fn scattering_pdf(&self, r_in: &Ray, hit_rec: &HitRecord, scattered: &Ray) -> f32 {
         0.0
     }
-    
+
     fn emitted(&self, r_in: &Ray, hit_rec: &HitRecord, u: f32, v: f32, p: &Vec3) -> Color {
         Color::BLACK
     }

@@ -1,5 +1,5 @@
-use std::ops::{Index, IndexMut, Mul, MulAssign};
 use crate::math::{Quaternion, Vec3};
+use std::ops::{Index, IndexMut, Mul, MulAssign};
 
 /// A column-major affine transform stored as four `Vec3` columns.
 ///
@@ -14,9 +14,7 @@ pub struct Transform {
 
 impl Transform {
     pub const IDENTITY: Self = Self {
-        matrix: [1.0, 0.0, 0.0, 0.0,
-                1.0, 0.0, 0.0, 0.0,
-                1.0, 0.0, 0.0, 0.0],
+        matrix: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
     };
 
     #[inline(always)]
@@ -272,8 +270,8 @@ impl Mul<Vec3> for Transform {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{Quaternion, Vec3};
     use super::*;
+    use crate::math::{Quaternion, Vec3};
 
     fn assert_vec3_near(actual: Vec3, expected: Vec3) {
         let error = actual - expected;
@@ -327,8 +325,10 @@ mod tests {
 
     #[test]
     fn singular_transform_has_no_checked_inverse() {
-        assert!(Transform::from_scale(Vec3::new(1.0, 0.0, 1.0))
-            .try_inverse()
-            .is_none());
+        assert!(
+            Transform::from_scale(Vec3::new(1.0, 0.0, 1.0))
+                .try_inverse()
+                .is_none()
+        );
     }
 }

@@ -3,7 +3,7 @@ use crate::pdf::PDF;
 use crate::utils::random_f32;
 
 pub struct MixturePDF<'a> {
-    pdf: [&'a dyn PDF; 2]
+    pdf: [&'a dyn PDF; 2],
 }
 
 impl<'a> MixturePDF<'a> {
@@ -16,8 +16,12 @@ impl PDF for MixturePDF<'_> {
     fn value(&self, direction: &Vec3) -> f32 {
         0.5 * self.pdf[0].value(direction) + 0.5 * self.pdf[1].value(direction)
     }
-    
+
     fn generate(&self) -> Vec3 {
-        if random_f32() < 0.5 { self.pdf[0].generate() } else { self.pdf[1].generate() }
+        if random_f32() < 0.5 {
+            self.pdf[0].generate()
+        } else {
+            self.pdf[1].generate()
+        }
     }
 }

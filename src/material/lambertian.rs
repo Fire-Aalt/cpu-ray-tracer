@@ -1,7 +1,7 @@
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::material::{Material, ScatterRecord};
-use crate::math::{dot, Ray};
+use crate::math::{Ray, dot};
 use crate::pdf::CosinePDF;
 use crate::texture::{SolidColorTexture, Texture};
 use std::f32::consts::PI;
@@ -15,9 +15,11 @@ impl Lambertian {
     pub fn new(texture: Arc<dyn Texture>) -> Arc<Self> {
         Arc::new(Lambertian { texture })
     }
-    
+
     pub fn from_color(albedo: Color) -> Arc<Self> {
-        Arc::new(Lambertian { texture: SolidColorTexture::new(albedo) })
+        Arc::new(Lambertian {
+            texture: SolidColorTexture::new(albedo),
+        })
     }
 }
 

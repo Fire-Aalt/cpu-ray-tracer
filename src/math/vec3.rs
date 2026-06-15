@@ -1,6 +1,6 @@
-use std::f32::consts::PI;
 use crate::color::Color;
 use crate::utils::{random_f32, random_range_f32};
+use std::f32::consts::PI;
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub};
 
@@ -8,7 +8,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
-    pub z: f32
+    pub z: f32,
 }
 
 impl Vec3 {
@@ -19,28 +19,32 @@ impl Vec3 {
     pub fn unit_vector(&self) -> Vec3 {
         *self / self.length()
     }
-    
+
     pub fn random() -> Vec3 {
         Vec3::new(random_f32(), random_f32(), random_f32())
     }
-    
+
     pub fn random_cosine_direction() -> Vec3 {
         let r1 = random_f32();
         let r2 = random_f32();
         let phi = 2.0 * PI * r1;
-        
+
         let sqrt_r2 = r2.sqrt();
         let x = sqrt_r2 * phi.cos();
         let y = sqrt_r2 * phi.sin();
         let z = (1.0 - r2).sqrt();
-        
+
         Vec3::new(x, y, z)
     }
 
     pub fn random_range(range: Range<f32>) -> Vec3 {
-        Vec3::new(random_range_f32(range.clone()), random_range_f32(range.clone()), random_range_f32(range))
+        Vec3::new(
+            random_range_f32(range.clone()),
+            random_range_f32(range.clone()),
+            random_range_f32(range),
+        )
     }
-    
+
     pub fn random_unit_vector() -> Vec3 {
         loop {
             let x = random_range_f32(-1.0..1.0);
@@ -49,15 +53,11 @@ impl Vec3 {
 
             if radius_squared < 1.0 {
                 let scale = 2.0 * (1.0 - radius_squared).sqrt();
-                return Vec3::new(
-                    x * scale,
-                    y * scale,
-                    1.0 - 2.0 * radius_squared,
-                );
+                return Vec3::new(x * scale, y * scale, 1.0 - 2.0 * radius_squared);
             }
         }
     }
-    
+
     pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
         let on_unit_sphere = Vec3::random_unit_vector();
         if dot(&on_unit_sphere, normal) > 0.0 {
@@ -77,18 +77,18 @@ impl Vec3 {
             }
         }
     }
-    
+
     pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
         *v - *n * dot(v, n) * 2.0
     }
-    
+
     pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f32) -> Vec3 {
         let cos_theta = dot(&(-*uv), n).min(1.0);
         let r_out_perp = (*uv + *n * cos_theta) * etai_over_etat;
         let r_out_parallel = *n * -(1.0 - r_out_perp.length_squared()).abs().sqrt();
         r_out_perp + r_out_parallel
     }
-    
+
     pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
     }
@@ -101,9 +101,13 @@ impl Vec3 {
         let s = 1e-8;
         self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
-    
+
     pub fn as_color(&self) -> Color {
-        Color { r: self.x, g: self.y, b: self.z }
+        Color {
+            r: self.x,
+            g: self.y,
+            b: self.z,
+        }
     }
 }
 
@@ -111,7 +115,11 @@ impl Neg for Vec3 {
     type Output = Vec3;
 
     fn neg(self) -> Self::Output {
-        Vec3 {x: -self.x, y: -self.y, z: -self.z }
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
@@ -119,11 +127,11 @@ impl Index<i32> for Vec3 {
     type Output = f32;
 
     fn index(&self, index: i32) -> &Self::Output {
-        match index { 
+        match index {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
-            _ => panic!("index out of range")
+            _ => panic!("index out of range"),
         }
     }
 }
@@ -160,7 +168,11 @@ impl Add<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
-        Vec3 {x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z}
+        Vec3 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
     }
 }
 
@@ -168,16 +180,23 @@ impl Sub<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Self::Output {
-        Vec3 {x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z}
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
-
 
 impl Mul<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3 {x: self.x * rhs.x, y: self.y * rhs.y, z: self.z * rhs.z}
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
     }
 }
 
@@ -185,7 +204,11 @@ impl Mul<f32> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, t: f32) -> Self::Output {
-        Vec3 {x: self.x * t, y: self.y * t, z: self.z * t }
+        Vec3 {
+            x: self.x * t,
+            y: self.y * t,
+            z: self.z * t,
+        }
     }
 }
 
@@ -205,6 +228,6 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
     Vec3 {
         x: u.y * v.z - u.z * v.y,
         y: u.z * v.x - u.x * v.z,
-        z: u.x * v.y - u.y * v.x
+        z: u.x * v.y - u.y * v.x,
     }
 }

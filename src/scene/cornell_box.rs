@@ -71,7 +71,6 @@ pub fn build(scene: &mut Scene) {
     //    aluminum.clone(),
     //));
 
-
     let glass = Dialectric::new(1.5);
 
     // Box 2
@@ -84,8 +83,11 @@ pub fn build(scene: &mut Scene) {
     //    glass.clone(),
     //));
 
-
-    scene.add_light(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass.clone()));
+    scene.add_light(Sphere::new(
+        Vec3::new(190.0, 90.0, 190.0),
+        90.0,
+        glass.clone(),
+    ));
     scene.add(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
 
     let cam = &mut scene.camera;

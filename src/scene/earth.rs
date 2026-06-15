@@ -1,25 +1,25 @@
 use crate::hittable::Sphere;
 use crate::material::Lambertian;
+use crate::math::Vec3;
 use crate::scene::Scene;
 use crate::texture::ImageTexture;
 use std::path::Path;
-use crate::math::Vec3;
 
 pub fn build(scene: &mut Scene) {
     let earth_texture = ImageTexture::new(Path::new("images/earthmap.jpg"));
     let earth_surface = Lambertian::new(earth_texture);
-  
-    scene.add(Sphere::new(Vec3::default(), 2.0, earth_surface));
-    
-    scene.camera.aspect_ratio      = 16.0 / 9.0;
-    scene.camera.image_width       = 400;
-    scene.camera.samples_per_pixel = 100;
-    scene.camera.max_depth         = 50;
 
-    scene.camera.v_fov     = 20.0;
-    scene.camera.look_from = Vec3::new(0.0,12.0,0.0);
-    scene.camera.look_at   = Vec3::new(0.0,0.0,0.0);
-    scene.camera.v_up      = Vec3::new(0.0,0.0,-1.0);
+    scene.add(Sphere::new(Vec3::default(), 2.0, earth_surface));
+
+    scene.camera.aspect_ratio = 16.0 / 9.0;
+    scene.camera.image_width = 400;
+    scene.camera.samples_per_pixel = 100;
+    scene.camera.max_depth = 50;
+
+    scene.camera.v_fov = 20.0;
+    scene.camera.look_from = Vec3::new(0.0, 12.0, 0.0);
+    scene.camera.look_at = Vec3::new(0.0, 0.0, 0.0);
+    scene.camera.v_up = Vec3::new(0.0, 0.0, -1.0);
 
     scene.camera.defocus_angle = 0.0;
 }

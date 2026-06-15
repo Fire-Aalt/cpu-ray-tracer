@@ -7,14 +7,21 @@ use crate::texture::CheckerTexture;
 use crate::utils::{random_f32, random_range_f32};
 
 pub fn build(scene: &mut Scene) {
-
-    let checker = Lambertian::new(CheckerTexture::from_colors(0.32, Color::new(0.1, 0.1, 0.1), Color::new(0.9, 0.9, 0.9)));
-    scene.add(Sphere::new(Vec3::new(0.0,-1000.0,0.0), 1000.0, checker));
+    let checker = Lambertian::new(CheckerTexture::from_colors(
+        0.32,
+        Color::new(0.1, 0.1, 0.1),
+        Color::new(0.9, 0.9, 0.9),
+    ));
+    scene.add(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, checker));
 
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat = random_f32();
-            let center = Vec3::new(a as f32 + 0.9*random_f32(), 0.2, b as f32 + 0.9*random_f32());
+            let center = Vec3::new(
+                a as f32 + 0.9 * random_f32(),
+                0.2,
+                b as f32 + 0.9 * random_f32(),
+            );
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 {
@@ -48,16 +55,16 @@ pub fn build(scene: &mut Scene) {
     scene.add(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3));
 
     let cam = &mut scene.camera;
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 720;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 720;
     cam.samples_per_pixel = 100;
-    cam.max_depth         = 32;
+    cam.max_depth = 32;
 
-    cam.v_fov     = 20.0;
-    cam.look_from = Vec3::new(13.0,2.0,3.0);
-    cam.look_at   = Vec3::new(0.0,0.0,0.0);
-    cam.v_up      = Vec3::new(0.0,1.0,0.0);
+    cam.v_fov = 20.0;
+    cam.look_from = Vec3::new(13.0, 2.0, 3.0);
+    cam.look_at = Vec3::new(0.0, 0.0, 0.0);
+    cam.v_up = Vec3::new(0.0, 1.0, 0.0);
 
     cam.defocus_angle = 0.6;
-    cam.focus_distance    = 10.0;
+    cam.focus_distance = 10.0;
 }

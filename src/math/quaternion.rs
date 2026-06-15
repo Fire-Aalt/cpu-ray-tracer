@@ -1,5 +1,5 @@
+use crate::math::{Vec3, cross, dot};
 use std::ops::{Mul, MulAssign, Neg};
-use crate::math::{cross, dot, Vec3};
 
 /// A right-handed rotation stored as `(x, y, z, w)`.
 ///
@@ -244,8 +244,8 @@ impl Mul<Vec3> for Quaternion {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::Vec3;
     use super::*;
+    use crate::math::Vec3;
 
     fn assert_vec3_near(actual: Vec3, expected: Vec3) {
         let error = actual - expected;
