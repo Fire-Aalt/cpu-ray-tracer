@@ -18,9 +18,18 @@ impl Color {
     }
     
     pub fn fmt(&self) -> (u8, u8, u8) {
-        let r = linear_to_gamma(self.r);
-        let g = linear_to_gamma(self.g);
-        let b = linear_to_gamma(self.b);
+        let mut r = self.r;
+        let mut g = self.g;
+        let mut b = self.b;
+
+        // Replace NaN components with zero.
+        if r.is_nan() { r = 0.0 };
+        if g.is_nan() { g = 0.0 };
+        if b.is_nan() { b = 0.0 };
+
+        r = linear_to_gamma(r);
+        g = linear_to_gamma(g);
+        b = linear_to_gamma(b);
 
         const INTENSITY: Interval = Interval::new(0.000, 0.999);
         let ir = (255.0 * INTENSITY.clamp(r)) as u8;

@@ -2,7 +2,8 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::material::Material;
 use std::f32::consts::PI;
 use std::sync::Arc;
-use crate::math::{dot, Interval, Ray, Vec3, AABB};
+use crate::math::{dot, Interval, Ray, Vec3, AABB, ONB};
+use crate::utils::random_f32;
 
 pub struct Sphere {
     center: Ray,
@@ -54,6 +55,18 @@ impl Sphere {
         *u = phi / (2.0 * PI);
         *v = theta / PI;
     }
+    
+    fn random_to_sphere(radius: f32, distance_squared: f32) -> Vec3 {
+        let r1 = random_f32();
+        let r2 = random_f32();
+        let z = 1.0 + r2 * ((1.0 - radius * radius / distance_squared).sqrt() - 1.0);
+        
+        let phi = 2.0 * PI * r1;
+        let x = phi.cos() * (1.0 - z * z).sqrt();
+        let y = phi.sin() * (1.0 - z * z).sqrt();
+        
+        Vec3::new(x, y, z)
+    }
 }
 
 impl Hittable for Sphere {
@@ -90,5 +103,26 @@ impl Hittable for Sphere {
 
     fn bounding_box(&self) -> AABB {
         self.bbox
+    }
+
+    /// This method only works for stationary spheres.
+    fn pdf_value(&self, origin: &Vec3, direction: &Vec3) -> f32 {
+        let mut rec = HitRecord::default();
+        if self.hit(&Ray::new(*origin, *direction), Interval::new(0.001, f32::INFINITY), &mut rec).is_none() {
+            return 0.0
+        }
+
+        let distance_squared = (self.center.at(0.0) - *origin).length_squared();
+        let cos_theta_max = (1.0 - self.radius * self.radius / distance_squared).sqrt();
+        let solid_angle = 2.0 * PI * (1.0 - cos_theta_max);
+        
+        1.0 / solid_angle
+    }
+    
+    fn random(&self, origin: &Vec3) -> Vec3 {
+        let direction = self.center.at(0.0) - *origin;
+        let distance_squared = direction.length_squared();
+        let uvw = ONB::new(direction);
+        uvw.transform(&Self::random_to_sphere(self.radius, distance_squared))
     }
 }
