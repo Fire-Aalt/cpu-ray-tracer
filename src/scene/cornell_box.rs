@@ -75,24 +75,24 @@ pub fn build(scene: &mut Scene) {
     let glass = Dialectric::new(1.5);
 
     // Box 2
-    scene.add(Quad::r#box(
-        Transform::from_trs(
-            Vec3::new(182.968_26, 82.5, 168.956_07),
-            Quaternion::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), degrees_to_radians(-18.0)),
-            Vec3::new(165.0, 165.0, 165.0),
-        ),
-        glass.clone(),
-    ));
+    //scene.add(Quad::r#box(
+    //    Transform::from_trs(
+    //        Vec3::new(182.968_26, 82.5, 168.956_07),
+    //        Quaternion::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), degrees_to_radians(-18.0)),
+    //        Vec3::new(165.0, 165.0, 165.0),
+    //    ),
+    //    glass.clone(),
+    //));
 
 
-    //scene.add_light(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass.clone()));
-    //scene.add(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
+    scene.add_light(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass.clone()));
+    scene.add(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
 
     let cam = &mut scene.camera;
     cam.aspect_ratio = 1.0;
-    cam.image_width = 720;
-    cam.samples_per_pixel = 750;
-    cam.max_depth = 8;
+    cam.image_width = 1080;
+    cam.samples_per_pixel = 1000;
+    cam.max_depth = 32;
     cam.background = Color::BLACK;
 
     cam.v_fov = 40.0;
