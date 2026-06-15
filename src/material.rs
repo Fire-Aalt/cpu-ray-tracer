@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
 
@@ -13,9 +14,17 @@ pub use metal::*;
 pub use diffuse_light::*;
 pub use isotropic::*;
 use crate::math::{Ray, Vec3};
+use crate::pdf::PDF;
+
+#[derive(Default)]
+pub struct ScatterRecord {
+    pub attenuation: Color,
+    pub pdf: Option<Arc<dyn PDF>>,
+    pub skip_pdf_ray: Ray,
+}
 
 pub trait Material: Send + Sync {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
+    fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_rec: &mut ScatterRecord) -> bool {
         false
     }
 

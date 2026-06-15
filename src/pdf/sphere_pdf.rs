@@ -6,6 +6,12 @@ pub struct SpherePDF {
     
 }
 
+impl SpherePDF {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 impl PDF for SpherePDF {
     fn value(&self, direction: &Vec3) -> f32 {
         1.0 / (4.0 * PI)

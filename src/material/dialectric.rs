@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
-use crate::material::Material;
+use crate::material::{Material, ScatterRecord};
 use crate::math::{dot, Ray, Vec3};
 use crate::utils::random_f32;
 
@@ -25,8 +25,9 @@ impl Dialectric {
 }
 
 impl Material for Dialectric {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
-        *attenuation = Color::new(1.0, 1.0, 1.0);
+    fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_record: &mut ScatterRecord) -> bool {
+        scatter_record.attenuation = Color::WHITE;
+        scatter_record.pdf = None;
         let ri = if hit_rec.front_face {1.0 / self.refraction_index} else { self.refraction_index };
         
         let unit_direction = r_in.direction().unit_vector();
@@ -40,7 +41,7 @@ impl Material for Dialectric {
             Vec3::refract(&unit_direction, &hit_rec.normal, ri)
         };
         
-        *scattered = Ray::new_t(hit_rec.point, direction, r_in.time());
+        scatter_record.skip_pdf_ray = Ray::new_t(hit_rec.point, direction, r_in.time());
         true
     }
 }

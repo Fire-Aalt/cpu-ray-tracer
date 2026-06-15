@@ -4,9 +4,10 @@ use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use std::sync::{Mutex};
+use std::sync::{Arc, Mutex};
 use rayon::prelude::{ParallelSliceMut};
 use tracing::{span, trace_span, Level};
+use crate::material::ScatterRecord;
 use crate::math::{cross, Interval, Ray, Vec3};
 use crate::pdf::{CosinePDF, HittablePDF, MixturePDF, PDF};
 use crate::utils::{degrees_to_radians, random_f32};
@@ -219,26 +220,30 @@ impl Camera {
             Some(mat) => mat
         };
         
-        let mut scattered = Ray::default();
-        let mut attenuation = Color::default();
-        let mut pdf_value = 0.0;
+        let mut scatter_rec = ScatterRecord::default();
         let color_from_emission = mat.emitted(&ray, &rec, rec.u, rec.v, &rec.point);
         
-        if !mat.scatter(&ray, &mut rec, &mut attenuation, &mut scattered, &mut pdf_value) {
+        if !mat.scatter(&ray, &rec, &mut scatter_rec) {
             return color_from_emission;
         }
 
-        let light_pdf = HittablePDF::new(lights, rec.point);
-        let surface_pdf = CosinePDF::new(rec.normal);
-        let mixed_pdf = MixturePDF::new(&light_pdf, &surface_pdf);
+        let surface_pdf = match scatter_rec.pdf {
+            None => { 
+                return scatter_rec.attenuation * self.ray_color(&scatter_rec.skip_pdf_ray, depth - 1, world, lights) 
+            }
+            Some(pdf) => pdf
+        };
         
-        scattered = Ray::new_t(rec.point, mixed_pdf.generate(), ray.time());
-        pdf_value = mixed_pdf.value(scattered.direction());
+        let light_pdf = HittablePDF::new(lights, rec.point);
+        let mixed_pdf = MixturePDF::new(&light_pdf, surface_pdf.as_ref());
+
+        let scattered = Ray::new_t(rec.point, mixed_pdf.generate(), ray.time());
+        let pdf_value = mixed_pdf.value(scattered.direction());
 
         let scattering_pdf = mat.scattering_pdf(&ray, &rec, &scattered);
 
         let sample_color = self.ray_color(&scattered, depth - 1, world, lights);
-        let color_from_scatter = (attenuation * scattering_pdf * sample_color) / pdf_value;
+        let color_from_scatter = (scatter_rec.attenuation * scattering_pdf * sample_color) / pdf_value;
 
         color_from_scatter + color_from_emission
     }

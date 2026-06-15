@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
-use crate::material::Material;
+use crate::material::{Material, ScatterRecord};
 use crate::math::{dot, Ray, Vec3};
 
 pub struct Metal {
@@ -16,11 +16,14 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
+    fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_record: &mut ScatterRecord) -> bool {
         let mut reflected = Vec3::reflect(r_in.direction(), &hit_rec.normal);
         reflected = reflected.unit_vector() + (Vec3::random_unit_vector() * self.fuzz);
-        *scattered = Ray::new_t(hit_rec.point, reflected, r_in.time());
-        *attenuation = self.albedo;
-        dot(scattered.direction(), &hit_rec.normal) > 0.0
+        
+        scatter_record.attenuation = self.albedo;
+        scatter_record.pdf = None;
+        scatter_record.skip_pdf_ray = Ray::new_t(hit_rec.point, reflected, r_in.time());
+        
+        true
     }
 }

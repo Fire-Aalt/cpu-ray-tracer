@@ -1,10 +1,11 @@
-use std::f32::consts::PI;
-use std::sync::Arc;
 use crate::color::Color;
 use crate::hittable::HitRecord;
-use crate::material::Material;
-use crate::math::{dot, Ray, Vec3, ONB};
+use crate::material::{Material, ScatterRecord};
+use crate::math::{dot, Ray};
+use crate::pdf::CosinePDF;
 use crate::texture::{SolidColorTexture, Texture};
+use std::f32::consts::PI;
+use std::sync::Arc;
 
 pub struct Lambertian {
     texture: Arc<dyn Texture>,
@@ -21,13 +22,9 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, hit_rec: &mut HitRecord, attenuation: &mut Color, scattered: &mut Ray, pdf: &mut f32) -> bool {
-        let uvw = ONB::new(hit_rec.normal);
-        let scatter_direction = uvw.transform(&Vec3::random_cosine_direction());
-        
-        *scattered = Ray::new_t(hit_rec.point, scatter_direction.unit_vector(), r_in.time());
-        *attenuation = self.texture.value(hit_rec.u, hit_rec.v, &hit_rec.point);
-        *pdf = dot(&uvw.w, scattered.direction()) / PI;
+    fn scatter(&self, r_in: &Ray, hit_rec: &HitRecord, scatter_record: &mut ScatterRecord) -> bool {
+        scatter_record.attenuation = self.texture.value(hit_rec.u, hit_rec.v, &hit_rec.point);
+        scatter_record.pdf = Some(Arc::new(CosinePDF::new(hit_rec.normal)));
         true
     }
 

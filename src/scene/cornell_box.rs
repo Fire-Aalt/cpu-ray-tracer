@@ -1,6 +1,6 @@
 use crate::color::Color;
 use crate::hittable::Quad;
-use crate::material::{DiffuseLight, Lambertian};
+use crate::material::{DiffuseLight, Lambertian, Metal};
 use crate::math::{Quaternion, Transform, Vec3};
 use crate::scene::Scene;
 use crate::utils::degrees_to_radians;
@@ -8,6 +8,7 @@ use crate::utils::degrees_to_radians;
 pub fn build(scene: &mut Scene) {
     let red = Lambertian::from_color(Color::new(0.65, 0.05, 0.05));
     let white = Lambertian::from_color(Color::new(0.73, 0.73, 0.73));
+    let aluminum = Metal::new(Color::new(0.8, 0.85, 0.88), 0.0);
     let green = Lambertian::from_color(Color::new(0.12, 0.45, 0.15));
     let light = DiffuseLight::from_color(Color::new(15.0, 15.0, 15.0));
 
@@ -50,14 +51,23 @@ pub fn build(scene: &mut Scene) {
         white.clone(),
     ));
 
+    //scene.add(Quad::r#box(
+    //    Transform::from_trs(
+    //        Vec3::new(366.041_44, 165.0, 353.336_3),
+    //        Quaternion::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), degrees_to_radians(15.0)),
+    //        Vec3::new(165.0, 330.0, 165.0),
+    //    ),
+    //    white.clone(),
+    //));
     scene.add(Quad::r#box(
         Transform::from_trs(
             Vec3::new(366.041_44, 165.0, 353.336_3),
             Quaternion::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), degrees_to_radians(15.0)),
             Vec3::new(165.0, 330.0, 165.0),
         ),
-        white.clone(),
+        aluminum.clone(),
     ));
+
     scene.add(Quad::r#box(
         Transform::from_trs(
             Vec3::new(182.968_26, 82.5, 168.956_07),
